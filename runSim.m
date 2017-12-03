@@ -6,6 +6,8 @@ function [focused_particles_percent, randomSeed] = runSim(params)
     delete('params-tmp.mat');
     clear params;
     % END
+    addpath(genpath([pwd]));
+    
     if(exist('globalVa', 'var'))
         VaLeft = -globalVa;
         VaRight = globalVa;
@@ -22,7 +24,7 @@ function [focused_particles_percent, randomSeed] = runSim(params)
               M, N, rPts, zPts, convergeTh, growthTh};
 
 %     filename = ['simulations/', simName, '/', 'deviceParams.mat'];
-    filename = sprintf('./simulations/%s/deviceParams.mat', simGlobalName);
+    filename = sprintf('./simulations/%s/deviceSimResults.mat', simGlobalName);
     calcPotential = ((exist (string(filename), 'file') == 0) && eraseOldSim);
     if(~calcPotential)
         load(filename, 'oldDeviceParams', 'V', 'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'MSE', 'Mbleft', 'Mbright');
@@ -43,8 +45,6 @@ function [focused_particles_percent, randomSeed] = runSim(params)
         MSE=[];
         Mbleft = [];
         Mbright = [];
-    end
-    if(calcPotential)
         disp('The potential is being computed...');
     else
         disp('Using precomputed potential');
@@ -80,7 +80,7 @@ function [focused_particles_percent, randomSeed] = runSim(params)
           
           
           
-    [ V, X, Y, U, W, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, probFig, Mbleft, Mbright, focused_particles ] = FullEinzelSim(simPars);
+    [ V, X, Y, U, W, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, Mbleft, Mbright, focused_particles ] = FullEinzelSim(simPars);
 
      simDir = ['simulations/', simGlobalName,'/', simName];
      if ~isdir(simDir)
@@ -88,49 +88,46 @@ function [focused_particles_percent, randomSeed] = runSim(params)
      end
      
      cd(simDir);
-
-
-     if (calcPotential)
-%          folderExist = isdir (['./','simulations']);
-%          if (~folderExist)
-%              mkdir simulations
-%          end
-%          cd 'simulations'
-%          if(~isdir(['./',simGlobalName]))
-%              mkdir(simGlobalName);
-%          end
-% 
-%          cd(simGlobalName);
-         
-         oldDeviceParams = deviceParams;
-         save('../deviceParams.mat', 'oldDeviceParams',  'V', 'X', 'Y','U', 'W','MSE', 'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'Mbleft', 'Mbright', 'Ez', 'Er');
-
-%          if (isdir(['./',simName]))
-%              rmdir(['./',simName], 's');
-%          end
-%          
-% 
-%          mkdir(simName);
-%          cd(simName);
-         
-
-         if(dimensionsOptimization)
-             savefig(fig(1),'MSEFigure.fig','compact');
-         end
-         savefig(fig(2),'ChargeDistribution.fig','compact');
-     end 
-
-     if(simulatePhaseSpace) 
-         savefig(fig(3),'phaseSpace.fig','compact');
+     
+     if(~isdir('../DeviceResults'))
+         mkdir('../DeviceResults')
      end
-     savefig(fig(4),'FullSim.fig','compact');
+     
+
+     if (calcPotential) 
+         oldDeviceParams = deviceParams;
+         save('../deviceSimResults.mat', 'oldDeviceParams',  'V','MSE',...
+             'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'Mbleft',...
+             'Mbright', 'Ez', 'Er');
+         if (SingleSim)
+             if(dimensionsOptimization)
+                 savefig(fig(1),'MSEFigure.fig','compact');
+             end
+             savefig(fig(2),'ChargeDistribution.fig','compact');
+         end
+         
+         save(['../DeviceResults/', simPdName,'.mat'],  ...
+         'V','MSE', 'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb',...
+         'Mbleft', 'Mbright', 'Ez', 'Er');
+     end 
+     
+     if(SingleSim)
+         if(simulatePhaseSpace) 
+             savefig(fig(3),'phaseSpace.fig','compact');
+         end
+         savefig(fig(4),'FullSim.fig','compact');
+     end
+     
+     save('ParticleTrajectory.mat', 'X', 'Y', 'U', 'W')
+    
 
 %      if (strcmp(class(probFig), 'matlab.graphics.Graphics')) %in case there are no problematic particles.
-    if (strcmp(class(probFig), 'matlab.ui.Figure')) %in case there are no problematic particles.
-         for i = 1:length(probFig)
-             savefig(probFig(i),sprintf('ProblematicParticle-figNum-%d', i),'compact');
-         end
+     if isdir('./problematicParticles/')
+        rmdir('./problematicParticles','s');
      end
+     if isdir('../../../problematicParticles/')
+         movefile('../../../problematicParticles/')
+     end  
      
      if (recordPhaseSpace)
         movefile('../../../phaseSpace.avi')

@@ -1,6 +1,6 @@
-function [ X, Y, U, W, fig, parameters, trajectoryLen, probFig, focused_particles] = calcTrajectory( simulatePhaseSpace,...
+function [ X, Y, U, W, fig, parameters, trajectoryLen, focused_particles] = calcTrajectory( simulatePhaseSpace,...
                                              useRelativeTrajectory, Voltage, zGrid, rGrid, q, m, entryVel,...
-                                             entryAngle, entryR, Zq ,...
+                                             entryAngle, axialEntryVelocity, radialEntryVelocity, entryR, Zq ,...
                                              electrodeProximityThresh, exitRthresh,...
                                              lowAxialVel, highAxialVel, lowRadialVel, highRadialVel, numOfParticles,...
                                              deviceRadius, leftElectrodeRadius, rightElectrodeRadius, VaLeft, VaRight, Ez, Er, ...
@@ -20,7 +20,6 @@ eM = 9.10938356e-31;
 electordesZ = unique(Zq);
 entryZ   = zGrid(1,1);
 trajectoryLen = 0;
-probFig = gobjects(1,1);
 
 if (simulatePhaseSpace)
     %------------------------------------%
@@ -85,7 +84,7 @@ if (simulatePhaseSpace)
             particlesFailed = particlesFailed + 1;
             hitMask(i) = 1;
         else
-            if (abs(trajectoriesY(end)) < exitRthresh)
+            if ((abs(trajectoriesY(end)) < exitRthresh) && (trajectoriesX(end) >= zGrid(1,end)))
                 focused = focused +1;
                 focusedMask(i) = 1;
             end
@@ -100,7 +99,8 @@ if (simulatePhaseSpace)
         Y (i,:) = [trajectoriesY,  NaN*ones(1,20000-len)];
         U (i,:) = [velocityX,  NaN*ones(1,20000-len)];
         W (i,:) = [velocityY,  NaN*ones(1,20000-len)];
-        trajectoryLen (i) = length(trajectoriesX);   
+        trajectoryLen (i) = length(trajectoriesX); 
+        fprintf('Done Calculating Trajectory %d\n', i)
     end
     focusedMask = logical(focusedMask);
 
@@ -109,14 +109,10 @@ if (simulatePhaseSpace)
     %------------------------------------%
     
     %--------Problematic Particle -------%
-    k=1;
-    for i = 1:numOfParticles
-       if (min(U(i,:)) < 0) %if particle started a motion backwards         
-            plotProbParticle
-            k = k+1;
-       end    
-    end
-
+%     if (min(min(U)) < 0)    
+%             plotProbParticle
+%     end
+%    
     %---------Phase Space Figure---------%
     passMask = ~hitMask;
     notFocusedMask = logical((passMask)-focusedMask);

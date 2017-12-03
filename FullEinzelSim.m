@@ -1,4 +1,4 @@
-function [ V, X, Y, U, W, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, probFig, Mbleft, Mbright, focused_particles ] =...
+function [ V, X, Y, U, W, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, Mbleft, Mbright, focused_particles ] =...
     FullEinzelSim(simPars)
 %NOTE: The parameters "calcPotential, V, zGrid, rGrid, Rq, Zq, MSE" are
 % used for device potential caching. if calcPotential is set to true, the
@@ -13,7 +13,6 @@ clear params;
 
 close all;
 fig = gobjects(1,4);
-probFig = [];
 addpath(genpath([pwd]));
 %--------------------------------
 %Params For trajectory
@@ -25,7 +24,11 @@ if(simulateElectron)
    q =  -1.60217662e-19;
    m = 9.10938356e-31;
 end
- c0 = 3e8;
+c0 = 3e8;
+
+if (~simulatePhaseSpace)
+    numOfParticles = 1;
+end
 
 % if(useAngle)
 %     %For one particle
@@ -75,13 +78,13 @@ r_step = rGrid(2,1) - rGrid(1,1);
 [Ez, Er] = gradient(-V, z_step, r_step);
 if(simulateTrajectory)
   tic;
-  [ X, Y, U, W, fig(3),parameters, trajectoryLen, probFig, focused_particles] = calcTrajectory(...
-                                             simulatePhaseSpace,useRelativeTrajectory, V, zGrid, rGrid, q, m, entryVel,...
-                                             entryAngle, entryR, Zq ,...
+  [ X, Y, U, W, fig(3),parameters, trajectoryLen, focused_particles] = calcTrajectory( simulatePhaseSpace,...
+                                             useRelativeTrajectory, V, zGrid, rGrid, q, m, entryVel,...
+                                             entryAngle, axialEntryVelocity, radialEntryVelocity, entryR, Zq ,...
                                              electrodeProximityThresh, exitRthresh,...
                                              lowAxialVel, highAxialVel, lowRadialVel, highRadialVel, numOfParticles,...
-                                             deviceRadius, leftElectrodeRadius, rightElectrodeRadius,VaLeft, VaRight, Ez, Er, recordPhaseSpace,...
-                                             useAngle);
+                                             deviceRadius, leftElectrodeRadius, rightElectrodeRadius, VaLeft, VaRight, Ez, Er, ...
+                                             recordPhaseSpace, useAngle);
   toc;
 end
 
