@@ -19,16 +19,16 @@ params.distanceBetweenElectrodes = 1/1e3;
 params.repetitions               = 1;
 params.sideOffset                = 2/(1e3);
 
-% params.M                         = 100;
-% params.N                         = 25;
-params.M                         = 730;
-params.N                         = 290;
+params.M                         = 100;
+params.N                         = 25;
+% params.M                         = 730;
+% params.N                         = 290;
 
-% params.rPts                      = 100;
-% params.zPts                      = 100;
-% 
-params.rPts                      = 500;
-params.zPts                      = 500;
+params.rPts                      = 100;
+params.zPts                      = 100;
+
+% params.rPts                      = 500;
+% params.zPts                      = 500;
 
 params.convergeTh                = 5e-8;
 params.growthTh                  = 0.5e-4;
@@ -42,14 +42,15 @@ params.radialEntryVelocity       = 0.05*c0;
 params.useRelativeTrajectory     = true; 
 params.electrodeProximityThresh  = 10/1e6;
 
-% params.numOfParticles            = 10;
-params.numOfParticles            = 1000;
+params.numOfParticles            = 10;
+% params.numOfParticles            = 1000;
 
 params.lowAxialVel               = 0.1*c0;
 params.highAxialVel              = 0.3*c0;
 params.lowRadialVel              = 0.001*c0;
 params.highRadialVel             = 0.05*c0;
 params.exitRthresh               = 0.25/1e3;
+params.beamInitialRadius         = 5e-4;
 params.simulatePhaseSpace        = 1;
 params.genNewSeed                = true;
 params.simGlobalName             = 'ElectroStaticLens';
@@ -71,8 +72,8 @@ iterParamsCharges.entryVel=[0.05,0.075]*c0;
 
 
 %device parameters iteration variables definitions
-% iterParamsDevice.globalVa = [10,15]*1e3;
-iterParamsDevice.globalElectrodeRadius=[0.25,0.5]/1e3;
+iterParamsDevice.globalVa = [10,15]*1e3;
+% iterParamsDevice.globalElectrodeRadius=[0.25,0.5]/1e3;
 
 % iterParamsDevice.globalVa = [10,15,30,50,100]*1e3;
 % iterParamsDevice.repetitions = [1,2,3,5,7,9];
@@ -101,6 +102,7 @@ fprintf(log, "Beginning %s... Time: %s \n",params.simGlobalName, datetime('now')
 
 
 results = struct();
+results.in.globalDefaultParams = params;
 
 %Writing the input values in the results vector
 for pdNameInd = 1:numel(pdNames)

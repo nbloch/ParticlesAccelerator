@@ -4,7 +4,7 @@ function [ X, Y, U, W, fig, parameters, trajectoryLen, focused_particles] = calc
                                              electrodeProximityThresh, exitRthresh,...
                                              lowAxialVel, highAxialVel, lowRadialVel, highRadialVel, numOfParticles,...
                                              deviceRadius, leftElectrodeRadius, rightElectrodeRadius, VaLeft, VaRight, Ez, Er, ...
-                                             recordPhaseSpace, useAngle)
+                                             recordPhaseSpace, useAngle, beamInitialRadius)
 
 % if(useAngle)    
 % %     %For many particles
@@ -44,7 +44,7 @@ if (simulatePhaseSpace)
         %EXPLANATION:
         %alpha = atan(((+-)electrodeRadius- Rin)/sideOffset
         %d=sideOffset
-        entryRvec = (rand(1, numOfParticles) - 0.5)*3*leftElectrodeRadius;
+        entryRvec = (rand(1, numOfParticles) - 0.5)*2*beamInitialRadius;
         d = abs(zGrid(1) - electordesZ(1));
 %         entryAngles = zeros(1, numOfParticles);
         upAngleBound = atan((leftElectrodeRadius-entryRvec)/d);
