@@ -105,11 +105,11 @@ function [focused_particles_percent, randomSeed] = runSim(params)
                  savefig(fig(1),'MSEFigure.fig','compact');
              end
              savefig(fig(2),'ChargeDistribution.fig','compact');
+         else
+             save(['../DeviceResults/', simPdName,'.mat'],  ...
+             'V','MSE', 'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb',...
+             'Mbleft', 'Mbright', 'Ez', 'Er');
          end
-         
-         save(['../DeviceResults/', simPdName,'.mat'],  ...
-         'V','MSE', 'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb',...
-         'Mbleft', 'Mbright', 'Ez', 'Er');
      end 
      
      if(SingleSim)
