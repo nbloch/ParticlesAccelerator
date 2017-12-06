@@ -1,4 +1,4 @@
-function [ V, X, Y, U, W, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, Mbleft, Mbright, focused_particles ] =...
+function [ V, X, Y, U, W, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, Mbleft, Mbright, focused_particles, Q ] =...
     FullEinzelSim(simPars)
 %NOTE: The parameters "calcPotential, V, zGrid, rGrid, Rq, Zq, MSE" are
 % used for device potential caching. if calcPotential is set to true, the
@@ -24,23 +24,10 @@ if(simulateElectron)
    q =  -1.60217662e-19;
    m = 9.10938356e-31;
 end
-c0 = 3e8;
 
 if (~simulatePhaseSpace)
     numOfParticles = 1;
 end
-
-% if(useAngle)
-%     %For one particle
-%     axialEntryVelocity  = entryVel*cos(deg2rad(entryAngle));
-%     radialEntryVelocity = entryVel*sin(deg2rad(entryAngle));
-%     
-% %     %For many particles
-% %     lowAxialVel   = entryVel*cos(deg2rad(entryAngle));
-% %     highAxialVel  = entryVel;
-% %     lowRadialVel  = (1e-6)*c0;
-% %     highRadialVel = entryVel*sin(deg2rad(entryAngle));
-% end
 
 
 %--------------------------------
@@ -59,14 +46,15 @@ end
 %Calculating Potential
 %--------------------------------
 if(calcPotential)
-      tic;
-      [V, zGrid, rGrid, MSE, fig(2), Rq, Zq,  Rb, Zb, Mbleft, Mbright ] = calcFullLensPotential( VaLeft, VaRight, electrodeWidth, ...
-                                                    leftElectrodeRadius, rightElectrodeRadius, deviceRadius, ...
-                                                    distanceBetweenElectrodes, N, M, use_bessel, repetitions, deviceLength,...
-                                                    rPts, zPts);
-      toc;
+    tic;
+    [V, zGrid, rGrid, MSE, fig(2), Rq, Zq,  Rb, Zb, Mbleft, Mbright, Q ] = calcFullLensPotential( VaLeft, VaRight, electrodeWidth, ...
+                                                leftElectrodeRadius, rightElectrodeRadius, deviceRadius, ...
+                                                distanceBetweenElectrodes, N, M, use_bessel, repetitions, deviceLength,...
+                                                rPts, zPts);
+    toc;
+else
+    Q=0;
 end
-
 %--------------------------------
 %Calculating Particle Trajectory
 %--------------------------------

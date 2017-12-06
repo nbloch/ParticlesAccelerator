@@ -81,7 +81,7 @@ function [focused_particles_percent, randomSeed] = runSim(params)
           
           
           
-    [ V, X, Y, U, W, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, Mbleft, Mbright, focused_particles ] = FullEinzelSim(simPars);
+    [ V, X, Y, U, W, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, Mbleft, Mbright, focused_particles, Q ] = FullEinzelSim(simPars);
 
      simDir = ['simulations/', simGlobalName,'/', simName];
      if ~isdir(simDir)
@@ -95,11 +95,11 @@ function [focused_particles_percent, randomSeed] = runSim(params)
      end
      
 
-     if (calcPotential) 
+     if (calcPotential)
          oldDeviceParams = deviceParams;
          save('../deviceSimResults.mat', 'oldDeviceParams',  'V','MSE',...
              'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'Mbleft',...
-             'Mbright', 'Ez', 'Er');
+             'Mbright', 'Ez', 'Er', 'Q');
          if (SingleSim)
              if(dimensionsOptimization)
                  savefig(fig(1),'MSEFigure.fig','compact');

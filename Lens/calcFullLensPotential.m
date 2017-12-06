@@ -1,4 +1,4 @@
-function [V, zGrid, rGrid, MSE, fig, Rq, Zq, Rb, Zb, MLeft, MRight] = calcFullLensPotential( VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
+function [V, zGrid, rGrid, MSE, fig, Rq, Zq, Rb, Zb, MLeft, MRight, Qvec] = calcFullLensPotential( VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
                                               deviceRadius, distanceBetweenElectrodes, N, M, use_bessel, repetitions, deviceLength,...
                                               rPts, zPts)
 %-----------------------------
@@ -8,7 +8,7 @@ function [V, zGrid, rGrid, MSE, fig, Rq, Zq, Rb, Zb, MLeft, MRight] = calcFullLe
 [Q, Rq, Zq, Rb, Zb, MSE, NLeft, NRight, lastZoff, MLeft, MRight] = getChargesRepetitive(VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
                                               deviceRadius, distanceBetweenElectrodes, N, M, use_bessel, repetitions );
 fprintf('Done Getting Charges\n');
-
+Qvec = Q;
 %---------------------
 %Plotting
 %---------------------

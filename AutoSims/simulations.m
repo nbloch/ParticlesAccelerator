@@ -18,18 +18,10 @@ params.deviceRadius              = 5/1e3;
 params.distanceBetweenElectrodes = 1/1e3;
 params.repetitions               = 1;
 params.sideOffset                = 2/(1e3);
-
-params.M                         = 100;
-params.N                         = 25;
-% params.M                         = 730;
-% params.N                         = 290;
-
-params.rPts                      = 100;
-params.zPts                      = 100;
-
-% params.rPts                      = 500;
-% params.zPts                      = 500;
-
+params.M                         = 730;
+params.N                         = 290;
+params.rPts                      = 500;
+params.zPts                      = 500;
 params.convergeTh                = 5e-8;
 params.growthTh                  = 0.5e-4;
 params.entryVel                  = 0.1*c0;
@@ -41,10 +33,7 @@ params.axialEntryVelocity        = 0.1*c0;
 params.radialEntryVelocity       = 0.05*c0;
 params.useRelativeTrajectory     = true; 
 params.electrodeProximityThresh  = 10/1e6;
-
-params.numOfParticles            = 10;
-% params.numOfParticles            = 1000;
-
+params.numOfParticles            = 1000;
 params.lowAxialVel               = 0.1*c0;
 params.highAxialVel              = 0.3*c0;
 params.lowRadialVel              = 0.001*c0;
@@ -65,20 +54,27 @@ iterParamsCharges = struct();
 iterParamsDevice = struct();
 
 %charge parameters iteration variables definitions
-iterParamsCharges.entryVel=[0.05,0.075]*c0;
 
-
-% iterParamsCharges.entryVel=[0.05,0.075,0.1,0.125,0.15,0.2,0.3,0.5,0.75,0.9]*c0;
+iterParamsCharges.entryVel=[0.05,0.075,0.1,0.125,0.15,0.2,0.3,0.5,0.75,0.9]*c0;
 
 
 %device parameters iteration variables definitions
-iterParamsDevice.globalVa = [10,15]*1e3;
-% iterParamsDevice.globalElectrodeRadius=[0.25,0.5]/1e3;
 
-% iterParamsDevice.globalVa = [10,15,30,50,100]*1e3;
-% iterParamsDevice.repetitions = [1,2,3,5,7,9];
-% iterParamsDevice.distanceBetweenElectrodes=[0.5,0.75,1,1.25,2]/1e3;
-% iterParamsDevice.globalElectrodeRadius=[0.25,0.5,0.75,1,1.5,2]/1e3;
+iterParamsDevice.globalVa = [10,15,30,50,100]*1e3;
+iterParamsDevice.repetitions = [1,2,3,5,7,9];
+iterParamsDevice.distanceBetweenElectrodes=[0.5,0.75,1,1.25,2]/1e3;
+iterParamsDevice.globalElectrodeRadius=[0.25,0.5,0.75,1,1.5,2]/1e3;
+
+
+%DEBUG
+% iterParamsCharges.entryVel=[0.05,0.075]*c0;
+% iterParamsDevice.globalVa = [10,15]*1e3;
+% iterParamsDevice.repetitions = [1,2];
+% params.M                         = 100;
+% params.N                         = 25;
+% params.rPts                      = 200;
+% params.zPts                      = 200;
+% params.numOfParticles            = 10;
 
 
 pcNames = fieldnames(iterParamsCharges);

@@ -32,6 +32,7 @@ if (simulatePhaseSpace)
     Y =  zeros(numOfParticles,trajMaxLen);
     U = zeros(numOfParticles,trajMaxLen);
     W = zeros(numOfParticles,trajMaxLen);
+
     
     trajectoryLen = zeros(1,numOfParticles);
     if(useAngle)
@@ -92,8 +93,9 @@ if (simulatePhaseSpace)
         Y (i,:) = [trajectoriesY,  NaN*ones(1,trajMaxLen-len)];
         U (i,:) = [velocityX,  NaN*ones(1,trajMaxLen-len)];
         W (i,:) = [velocityY,  NaN*ones(1,trajMaxLen-len)];
+
         trajectoryLen (i) = length(trajectoriesX); 
-        fprintf('Done Calculating Trajectory %d\n', i)
+%         fprintf('Done Calculating Trajectory %d\n', i)
     end
     focusedMask = logical(focusedMask);
 
