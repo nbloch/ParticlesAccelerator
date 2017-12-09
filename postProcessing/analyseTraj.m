@@ -1,5 +1,5 @@
 function [trajLen, hit, focused, hitMask, focusedMask ] = analyseTraj( X, Y, Zq, deviceRadius, leftElectrodeRadius,...
-                                        rightElectrodeRadius, electrodeProximityThresh, exitRthresh, lastZ)
+                                        rightElectrodeRadius, electrodeProximityThresh, exitRthresh, lastZ, numOfParticles)
 %ANALYSETRAJ Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -7,8 +7,9 @@ trajLen = sum(~isnan(X),2);
 electordesZ = unique(Zq);
 focused = 0;
 
-parfor i=1:numOfParticles
+for i=1:numOfParticles
     %check If Particle i hit the electrode
+    i
     hitMask(i) = checkElectrodeProximity( deviceRadius, leftElectrodeRadius, rightElectrodeRadius,...
                                           electordesZ, [Y(i,trajLen(i)-1) Y(i,trajLen(i))],...
                                           [X(i,trajLen(i)-1) X(i,trajLen(i))],electrodeProximityThresh);

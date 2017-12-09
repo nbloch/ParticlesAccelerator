@@ -48,6 +48,7 @@ params.eraseOldSim               = true;
 params.recordPhaseSpace          = false;
 params.SingleSim                 = false;
 
+saveDefaultVals(params);
 paramsFields = fieldnames(params);
 
 iterParamsCharges = struct();
