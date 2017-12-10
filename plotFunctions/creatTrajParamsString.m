@@ -12,7 +12,7 @@ exitHighAxialVel  = max(endBetaZ(~hitMask));
 exitLowRadialVel  = min(abs(endBetaR(~hitMask)));
 exitHighRadialVel = max(abs(endBetaR(~hitMask)));
 exitRRange        = max(abs(exitR(~hitMask)));
-
+entryRRange       = max(abs(exitR(~entryR)));
 trajParams = {' ';
    '-------Particle Parameters-------';
   ['q: ', num2str(q/e0),'[e_0]'];
@@ -22,7 +22,7 @@ trajParams = {' ';
    '----Particle Entry Parameters----';
   ['V_z_-_i_n: [', num2str(lowAxialVel/c0),', ',num2str(highAxialVel/c0),'][c]'];
   ['V_r_-_i_n: [', num2str(lowRadialVel/c0),', ',num2str(highRadialVel/c0),'][c]'];
-  ['R_i_n: [', num2str(-entryR*1e3),', ',num2str(entryR*1e3),'][mm]'];
+  ['R_i_n: [', num2str(-entryRRange*1e3),', ',num2str(entryRRange*1e3),'][mm]'];
   ' ';
    '----Particles Exit Parameters----';
   ['V_z_-_o_u_t: [', num2str(exitLowAxialVel),', ',num2str(exitHighAxialVel),'][c]'];

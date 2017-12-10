@@ -1,6 +1,6 @@
 function [ CDFig, PPFig, PSFig, FSFig, focused ] = postProcessing( simVars, newFocuseRad, useNewRthresh, ...
                                                                    plotChargeDistribution, plotProbParticles, ... 
-                                                                   plotPhaseSpace, filmPhaseSpace, plotFullSim )
+                                                                   dispPhaseSpace, filmPhaseSpace, plotFullSim )
 %inputs:
 % simVars should contain:
 % 1. trajectory results: X,Y,U,W
@@ -19,7 +19,7 @@ save('simVars-tmp.mat', '-struct', 'simVars');
 load('simVars-tmp.mat');
 delete('simVars-tmp.mat');
 clear params;
-
+CDFig = 0; PPFig = 0; PSFig = 0; FSFig = 0;
 %--------------------------%
 %Lens Post Processing
 %--------------------------%
@@ -38,7 +38,7 @@ end
 % trajectories Post Processing
 %-----------------------------%
 if ( useNewRthresh)
-    exitRthresh = newFocuseRad;
+    exitRthresh = newFocuseRad/1e3;
 end
 
 [startBetaR,startBetaZ,startBeta, startGamma] = getBG(U, W, ones(1,numOfParticles));
@@ -66,8 +66,8 @@ if(plotProbParticles)
                              %empty are variable for not phase space simulation
 end
 
-if(plotPhaseSpace)
-    PSFig = plotPhaseSpace( focusedMask, notFocusedMask, numOfParticles, exitR, entryRvec, ...
+if(dispPhaseSpace)
+    PSFig = plotPhaseSpace( focusedMask, hitMask, numOfParticles, exitR, entryRvec, ...
                             startGamma, startBetaR, endGamma, endBetaR, Y);
 end
 
@@ -82,15 +82,15 @@ end
 
 if(plotFullSim)
     trajParams = creatTrajParamsString(q, m, numOfParticles, hitMask, focused, endBetaZ,...
-                                    endBetaR, exitR, proxTh, exitRthresh, lowAxialVel,...
-                                    highAxialVel, lowRadialVel,highRadialVel, entryR); 
+                                    endBetaR, exitR, electrodeProximityThresh, exitRthresh, lowAxialVel,...
+                                    highAxialVel, lowRadialVel,highRadialVel, entryRvec); 
                                 
-    fullParams = creatParamsString( electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
+    fullParams = creatFullParamsString( electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
                                                deviceRadius, distanceBetweenElectrodes, deviceLength, ...
-                                               VaLeft, VaRight, MSE, M, N, simTraj, trajParams );
+                                               VaLeft, VaRight, MSE, M, N, true, trajParams );
                                            
     FSFig = displayFullSim(VaLeft, VaRight, zGrid, rGrid, true, numOfParticles, ...
-                                trajectoryLen, V, X, Y, true, Mbleft, M, repetitions, ...
+                                trajLen, V, X, Y, true, Mbleft, M, repetitions, ...
                                 Zb, Rb, fullParams);
 end
 

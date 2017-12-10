@@ -9,7 +9,7 @@ c0 = 3e8;
 M=730;
 N=290;
 
-load(sprintf('%s\\simDefaultVals.mat',params.simPath));
+load(sprintf('%s/simDefaultVals.mat',params.simPath));
 save('defVal-tmp.mat', '-struct', 'defaultVals');
 load('defVal-tmp.mat');
 delete('defVal-tmp.mat');
@@ -39,9 +39,9 @@ else
 end
 
 %load the simulation device's results
-load(sprintf('%s\\DeviceResults\\%s-[%d].mat',params.simPath, pdName, pdVal));
+load(sprintf('%s/DeviceResults/%s-[%d].mat',params.simPath, pdName, pdVal));
 %load the trajectories results
-load(sprintf('%s\\%s-[%d]-entryVel-[%d]\\ParticleTrajectory.mat', params.simPath, pdName, pdVal, params.beta*c0));
+load(sprintf('%s/%s-[%d]-entryVel-[%d]/ParticleTrajectory.mat', params.simPath, pdName, pdVal, params.beta*c0));
 
 parsStr=   {'V','MSE',...
          'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'Mbleft',...
@@ -49,7 +49,7 @@ parsStr=   {'V','MSE',...
          'beamInitialRadius', 'deviceRadius','distanceBetweenElectrodes',...
          'electrodeProximityThresh', 'electrodeWidth', 'exitRthresh',...
          'leftElectrodeRadius','numOfParticles', 'repetitions',...
-         'rightElectrodeRadius', 'sideOffset', 'VaLeft' ,'VaRight', 'M', 'N'};
+         'rightElectrodeRadius', 'sideOffset', 'VaLeft' ,'VaRight', 'M', 'N', 'q', 'm'};
 
 for i=1:length(parsStr(:))
     varname = parsStr{i};

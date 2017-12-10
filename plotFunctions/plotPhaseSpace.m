@@ -36,7 +36,7 @@ fig = figure();
     hold off
     leg = legend (legPlot,'Exit Phase', 'Start Phase', 'Focused', 'Not Focused');
     leg.Location = 'northeast';
-    xl = max(abs([min(min(min(Y(passMask,:))),     min(entryRvec (passMask)))  max(max(max(Y(passMask,:))),     max(entryRvec(passMask)))]));
+    xl = max(abs([min(min(exitR(passMask)),     min(entryRvec (passMask)))  max(max(exitR(passMask)),     max(entryRvec(passMask)))]));
     yl = max(abs([min(min(min(endPhase(passMask))), min(entryPhase(passMask)))  max(max(max(endPhase(passMask))), max(entryPhase(passMask)))]));
     xlim(1.1.*[-xl xl]);
     ylim(1.1.*[-yl yl]);     

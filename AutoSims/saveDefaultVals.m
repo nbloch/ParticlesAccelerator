@@ -25,7 +25,7 @@ defaultVals.beamInitialRadius         = params.beamInitialRadius;
 defaultVals.M                         = params.M;
 defaultVals.N                         = params.N;
 
-save(sprintf('simulations\\%s\\simDefaultVals.mat', params.simGlobalName), 'defaultVals')
+save(sprintf('./simulations/%s/simDefaultVals.mat', params.simGlobalName), 'defaultVals')
 
 end
 
