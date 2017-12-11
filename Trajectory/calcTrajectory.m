@@ -61,6 +61,7 @@ if (simulatePhaseSpace)
 
     hitMask = zeros(1, numOfParticles);
     focusedMask  = zeros(1,numOfParticles);
+    notFocusedMask = zeros(1,numOfParticles);
     %------------------------------------%
     %--------Calculate Trajectory--------%
     %------------------------------------%
@@ -78,9 +79,11 @@ if (simulatePhaseSpace)
             particlesFailed = particlesFailed + 1;
             hitMask(i) = 1;
         else
-            if ((abs(trajectoriesY(end)) < exitRthresh) && (trajectoriesX(end) >= zGrid(1,end)))
+            if ((abs(trajectoriesY(end)) <= exitRthresh) && (trajectoriesX(end) >= zGrid(1,end)))
                 focused = focused +1;
                 focusedMask(i) = 1;
+            elseif ((trajectoriesX(end) >= zGrid(1,end)) && (abs(trajectoriesY(end)) > exitRthresh))
+                notFocusedMask(i) = 1;
             end
             endBetaR(i) = velocityY(end)/c0;
             endBetaZ(i) = velocityX(end)/c0;
@@ -98,7 +101,7 @@ if (simulatePhaseSpace)
 %         fprintf('Done Calculating Trajectory %d\n', i)
     end
     focusedMask = logical(focusedMask);
-
+    notFocusedMask = logical(notFocusedMask);
     %------------------------------------%
     %----------Figures and Video---------%
     %------------------------------------%
@@ -113,11 +116,11 @@ if (simulatePhaseSpace)
    
     %---------Phase Space Figure---------%
     fig = plotPhaseSpace( focusedMask, hitMask, numOfParticles, exitR, entryRvec, ...
-                                    startGamma, startBetaR, endGamma, endBetaR, Y);
+                                    startGamma, startBetaR, endGamma, endBetaR, Y ,notFocusedMask, true);
     
     parameters = creatTrajParamsString(q, m, numOfParticles, hitMask, focused, endBetaZ,...
                                        endBetaR, exitR, electrodeProximityThresh, exitRthresh, lowAxialVel,...
-                                       highAxialVel, lowRadialVel,highRadialVel, entryR);
+                                       highAxialVel, lowRadialVel,highRadialVel, entryRvec);
        %---------Phase Space Video---------%
     if(recordPhaseSpace) 
        phaseSpaceVideo( q, m, numOfParticles, focused, focusedMask, X, Y, U, W, lowAxialVel, highAxialVel,...

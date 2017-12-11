@@ -72,8 +72,8 @@ for i = 1:numOfParticles
         if (mod(k,10) == 0)
             legend(legstr, 'Location', 'eastoutside');
             hold off;
-            savefig(probFig(j), sprintf('./problematicParticles/problematicParticles-%d', i))
-            close(probFig(j))
+            savefig(probFig(j-1), sprintf('./problematicParticles/problematicParticles-%d', i))
+            close(probFig(j-1))
         end
         k = k+1;
    end    

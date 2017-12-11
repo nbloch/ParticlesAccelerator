@@ -24,12 +24,12 @@ elseif (params.repetitionsSim)
     pdName = 'repetitions';
     pdVal = params.repetitionsVal;
     repetitions = params.repetitionsVal;
-elseif (params.electrodeRadiusSim)
+elseif (params.voltageSim)
     pdName = 'globalVa';
-    pdVal = params.voltageVal;
-    vaLeft = -params.voltageVal;
-    VaRight = params.voltageVal;
-elseif (params.electrodeRadiusVal)
+    pdVal = params.voltageVal*1e3;
+    VaLeft = -params.voltageVal*1e3;
+    VaRight = params.voltageVal*1e3;
+elseif (params.electrodeRadiusSim)
     pdName = 'globalElectrodeRadius';
     pdVal = params.electrodeRadiusVal/(1e3);
     leftElectrodeRadius = params.electrodeRadiusVal/(1e3);
@@ -61,7 +61,7 @@ end
 [ CDFig, PPFig, PSFig, FSFig, focused ] = postProcessing( simVars, params.newFocusRadius,  params.useNewFocusRadius, ...
                                                                    params.simulateChargeDist, params.simulateProbPart , ... 
                                                                    params.simulatePhaseSpace, params.simulatePhaseSpaceVideo,...
-                                                                   params.simulateFullSim);
+                                                                   params.simulateFullSim, params.plotNotFocused);
 
                                                                
 

@@ -12,7 +12,7 @@ exitHighAxialVel  = max(endBetaZ(~hitMask));
 exitLowRadialVel  = min(abs(endBetaR(~hitMask)));
 exitHighRadialVel = max(abs(endBetaR(~hitMask)));
 exitRRange        = max(abs(exitR(~hitMask)));
-entryRRange       = max(abs(exitR(~entryR)));
+entryRRange       = max(abs(entryR(~hitMask)));
 trajParams = {' ';
    '-------Particle Parameters-------';
   ['q: ', num2str(q/e0),'[e_0]'];

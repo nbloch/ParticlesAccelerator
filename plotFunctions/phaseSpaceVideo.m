@@ -6,7 +6,7 @@ c0 = 3e8;
 e0 =  -1.60217662e-19;
 eM = 9.10938356e-31;
 
-gamma = 1./sqrt(1-((W.^2+U.^2)./c0^2));
+gamma = 1./sqrt(1-((W.^2+U.^2)./(c0^2)));
 phase = gamma.*W./c0;
 startPhase = startGamma.*startBetaR;
 
@@ -33,7 +33,7 @@ yl = max(abs([min(min(min(phase(focusedMask,:))), min(startPhase(focusedMask))) 
 xlimits = 1.1.*[-xl xl];
 ylimits = 1.1.*[-yl yl];
 
-for j=1:25:length(zGrid(1,:))
+for j=1:5:length(zGrid(1,:))
     phaseSpaceVidFig = figure();
     ax1 = axes('Position',[0 0.05 0.5 0.815],'Visible','off');
     ax2 = axes('Position',[0.26 0.1 0.7 0.8],'Visible','off');
@@ -65,7 +65,8 @@ for j=1:25:length(zGrid(1,:))
     axes(ax1);
     text(.025,0.55, vidParams);
     axes(ax2)
-    set(gcf, 'Position', [0 0 640, 480])
+%     set(gcf, 'Position', [0 0 640, 480])
+    set(gcf, 'Position', [0 0 1920 1080])
     F = getframe(phaseSpaceVidFig);
     step(videoFWriter,F.cdata);
     close(phaseSpaceVidFig);
