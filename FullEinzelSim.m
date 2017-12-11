@@ -18,7 +18,7 @@ addpath(genpath([pwd]));
 %Params For trajectory
 %--------------------------------
 
-deviceLength = repetitions*distanceBetweenElectrodes + sideOffset
+deviceLength = repetitions*distanceBetweenElectrodes + sideOffset;
 
 if(simulateElectron)
    q =  -1.60217662e-19;
