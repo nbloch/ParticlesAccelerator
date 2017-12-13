@@ -1,6 +1,6 @@
 function [ trajParams ] = creatTrajParamsString(q, m, numOfParticles, hitMask, focused, endBetaZ,...
                                                 endBetaR, exitR, proxTh, exitRthresh, lowAxialVel,...
-                                                highAxialVel, lowRadialVel,highRadialVel, entryR)
+                                                highAxialVel, lowRadialVel,highRadialVel, entryR, useAngle, entryVel)
 %CREATTRAJPARAMSSTRING Summary of this function goes here
 %   Detailed explanation goes here
 c0 = 3e8;
@@ -13,18 +13,25 @@ exitLowRadialVel  = min(abs(endBetaR(~hitMask)));
 exitHighRadialVel = max(abs(endBetaR(~hitMask)));
 exitRRange        = max(abs(exitR(~hitMask)));
 entryRRange       = max(abs(entryR(~hitMask)));
-trajParams = {' ';
+particleParams = {' ';
    '-------Particle Parameters-------';
   ['q: ', num2str(q/e0),'[e_0]'];
   ['M: ', num2str(m/eM),'[e_M]'];
   ['Number of Particles: ', num2str(numOfParticles)];
-  ' ';
-   '----Particle Entry Parameters----';
+  ' ';};
+if (useAngle)
+    entryParams ={'----Particle Entry Parameters----';
+  ['V_i_n: ', num2str(entryVel/c0),'[c]'];
+  ['R_i_n: ', num2str(-entryRRange*1e3),', ',num2str(entryRRange*1e3),'][mm]'];
+  ' ';};   
+else
+entryParams ={'----Particle Entry Parameters----';
   ['V_z_-_i_n: [', num2str(lowAxialVel/c0),', ',num2str(highAxialVel/c0),'][c]'];
   ['V_r_-_i_n: [', num2str(lowRadialVel/c0),', ',num2str(highRadialVel/c0),'][c]'];
   ['R_i_n: [', num2str(-entryRRange*1e3),', ',num2str(entryRRange*1e3),'][mm]'];
-  ' ';
-   '----Particles Exit Parameters----';
+  ' ';};
+end 
+  exitParams = {'----Particles Exit Parameters----';
   ['V_z_-_o_u_t: [', num2str(exitLowAxialVel),', ',num2str(exitHighAxialVel),'][c]'];
   ['V_r_-_o_u_t: [', num2str(exitLowRadialVel),', ',num2str(exitHighRadialVel),'][c]'];
   ['R_o_u_t: [', num2str(-exitRRange*1e3),', ',num2str(exitRRange*1e3),'][mm]'];
@@ -34,5 +41,6 @@ trajParams = {' ';
   ['Focused: ', num2str(focused)];
   };
 
+trajParams = [particleParams; entryParams; exitParams];
 end
 

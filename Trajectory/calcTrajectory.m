@@ -41,8 +41,10 @@ if (simulatePhaseSpace)
         %d=sideOffset
         entryRvec = (rand(1, numOfParticles) - 0.5)*2*beamInitialRadius;
         d = abs(zGrid(1) - electordesZ(1));
-        upAngleBound = atan((leftElectrodeRadius-entryRvec)/d);
-        downAngleBound= atan((-leftElectrodeRadius-entryRvec)/d);
+%         upAngleBound = atan((leftElectrodeRadius-entryRvec)/d);
+%         downAngleBound= atan((-leftElectrodeRadius-entryRvec)/d);
+        upAngleBound = atan((1.5*beamInitialRadius-entryRvec)/d);
+        downAngleBound= atan((-1.5*beamInitialRadius-entryRvec)/d);
         entryAngles = upAngleBound + (downAngleBound-upAngleBound).* rand(1, numOfParticles);
         axialEntryVelVec  = entryVel*cos(entryAngles);
         radialEntryVelVec = entryVel*sin(entryAngles);
@@ -117,10 +119,10 @@ if (simulatePhaseSpace)
     %---------Phase Space Figure---------%
     fig = plotPhaseSpace( focusedMask, hitMask, numOfParticles, exitR, entryRvec, ...
                                     startGamma, startBetaR, endGamma, endBetaR, Y ,notFocusedMask, true);
-    
+                                
     parameters = creatTrajParamsString(q, m, numOfParticles, hitMask, focused, endBetaZ,...
                                        endBetaR, exitR, electrodeProximityThresh, exitRthresh, lowAxialVel,...
-                                       highAxialVel, lowRadialVel,highRadialVel, entryRvec);
+                                       highAxialVel, lowRadialVel,highRadialVel, entryRvec, useAngle, entryVel);
        %---------Phase Space Video---------%
     if(recordPhaseSpace) 
        phaseSpaceVideo( q, m, numOfParticles, focused, focusedMask, X, Y, U, W, lowAxialVel, highAxialVel,...
