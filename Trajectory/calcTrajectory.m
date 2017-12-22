@@ -1,10 +1,11 @@
-function [ X, Y, U, W, fig, parameters, trajectoryLen, focused_particles] = calcTrajectory( simulatePhaseSpace,...
-                                             useRelativeTrajectory, Voltage, zGrid, rGrid, q, m, entryVel,...
+function [ Z, X, Vz, Vx, fig, parameters, trajectoryLen, focused_particles] = calcTrajectory( simulatePhaseSpace,...
+                                              Voltage, zGrid, rGrid, q, m, entryVel,...
                                              entryAngle, axialEntryVelocity, radialEntryVelocity, entryR, Zq ,...
                                              electrodeProximityThresh, exitRthresh,...
-                                             lowAxialVel, highAxialVel, lowRadialVel, highRadialVel, numOfParticles,...
-                                             deviceRadius, leftElectrodeRadius, rightElectrodeRadius, VaLeft, VaRight, Ez, Er, ...
-                                             recordPhaseSpace, useAngle, beamInitialRadius)
+                                             numOfParticles,...
+                                             deviceRadius, leftElectrodeRadius, rightElectrodeRadius,  ...
+                                             recordPhaseSpace, useAngle, initialRadius, maxInitMoment, ...
+                                             Ek)
 
 c0 = 3e8;
 e0 =  -1.60217662e-19;
@@ -28,36 +29,27 @@ if (simulatePhaseSpace)
 
     trajMaxLen = 100000;
     
+    Z =  zeros(numOfParticles,trajMaxLen);
     X =  zeros(numOfParticles,trajMaxLen);
-    Y =  zeros(numOfParticles,trajMaxLen);
-    U = zeros(numOfParticles,trajMaxLen);
-    W = zeros(numOfParticles,trajMaxLen);
+    Vz = zeros(numOfParticles,trajMaxLen);
+    Vx = zeros(numOfParticles,trajMaxLen);
 
     
     trajectoryLen = zeros(1,numOfParticles);
-    if(useAngle)
-        %EXPLANATION:
-        %alpha = atan(((+-)electrodeRadius- Rin)/sideOffset
-        %d=sideOffset
-        entryRvec = (rand(1, numOfParticles) - 0.5)*2*beamInitialRadius;
-        d = abs(zGrid(1) - electordesZ(1));
-%         upAngleBound = atan((leftElectrodeRadius-entryRvec)/d);
-%         downAngleBound= atan((-leftElectrodeRadius-entryRvec)/d);
-        upAngleBound = atan((1.5*beamInitialRadius-entryRvec)/d);
-        downAngleBound= atan((-1.5*beamInitialRadius-entryRvec)/d);
-        entryAngles = upAngleBound + (downAngleBound-upAngleBound).* rand(1, numOfParticles);
-        axialEntryVelVec  = entryVel*cos(entryAngles);
-        radialEntryVelVec = entryVel*sin(entryAngles);
-    else
-        entryR = abs(entryR);
-        entryRvec         = (2*rand(1, numOfParticles)-1)*entryR;
-        axialEntryVelVec  = rand(1, numOfParticles)*(highAxialVel  - lowAxialVel)  + lowAxialVel;
-        radialEntryVelVec = rand(1, ceil(numOfParticles/2))*(highRadialVel - lowRadialVel) + lowRadialVel;
-        radialEntryVelVec = [radialEntryVelVec, -(rand(1, floor(numOfParticles/2))*(highRadialVel - lowRadialVel))-lowRadialVel];
-    end 
+
+    entryRvec = initialRadius * rand(1, numOfParticles);
+    %Vector of the angles in the XY plane (and not in relative to Z axis)
+    phiVec = 2*pi*(rand(1, numOfParticles)-0.5);
+    entryRvecSigned = entryRvec * sign(sin(phiVec));
+    prVec = maxInitMoment*rand(1,numOfParticles);
+    prVec(prVec.*entryRvecSigned >0) = -prVec(prVec.*entryRvecSigned >0);
+    gamma0 = 1 + Ek/(eM*c0^2);
+    rGamma = gamma0 *(0.999+rand(1,numOfParticles)/500);
+    pzVec = sqrt(rGamma.^2 -1 -prVec.^2);
     
-    startBetaR = radialEntryVelVec/c0;
-    startBetaZ = axialEntryVelVec/c0;
+    
+    startBetaR = prVec/(eM*c0);
+    startBetaZ = pzVec/(eM*c0);
     startBeta  = sqrt(startBetaZ.^2+startBetaR.^2);
     startGamma = 1./sqrt(1-startBeta.^2);
 
@@ -68,38 +60,33 @@ if (simulatePhaseSpace)
     %--------Calculate Trajectory--------%
     %------------------------------------%
     parfor i = 1:numOfParticles
-        if (useRelativeTrajectory)
-        [ trajectoriesX,trajectoriesY, velocityX, velocityY, hitElectrode ] =  relativeParticleTrajectory(Voltage, zGrid, rGrid, q, m, axialEntryVelVec(i),...
-                                                     radialEntryVelVec(i), entryRvec(i), entryZ, electrodeProximityThresh,...
+        [ trajectoriesZ,trajectoriesX, velocityZ, velocityX, hitElectrode ] =  relativeParticleTrajectory(Voltage, zGrid, rGrid, q, m, pzVec(i)/eM,...
+                                                     prVec(i)/eM, entryRvecSigned(i), entryZ, electrodeProximityThresh,...
                                                      deviceRadius, leftElectrodeRadius, rightElectrodeRadius, electordesZ);
-        else
-        [ trajectoriesX, trajectoriesY, velocityX, velocityY, hitElectrode ] =  ParticleTrajectory(Voltage, zGrid, rGrid, q, m, axialEntryVelVec(i),...
-                                             radialEntryVelVec(i), entryRvec(i), entryZ, electrodeProximityThresh,...
-                                             deviceRadius, leftElectrodeRadius, rightElectrodeRadius, electordesZ);
-        end
+
         if (hitElectrode)
             particlesFailed = particlesFailed + 1;
             hitMask(i) = 1;
         else
-            if ((abs(trajectoriesY(end)) <= exitRthresh) && (trajectoriesX(end) >= zGrid(1,end)))
+            if ((abs(trajectoriesX(end)) <= exitRthresh) && (trajectoriesZ(end) >= zGrid(1,end)))
                 focused = focused +1;
                 focusedMask(i) = 1;
-            elseif ((trajectoriesX(end) >= zGrid(1,end)) && (abs(trajectoriesY(end)) > exitRthresh))
+            elseif ((trajectoriesZ(end) >= zGrid(1,end)) && (abs(trajectoriesX(end)) > exitRthresh))
                 notFocusedMask(i) = 1;
             end
-            endBetaR(i) = velocityY(end)/c0;
-            endBetaZ(i) = velocityX(end)/c0;
+            endBetaR(i) = velocityX(end)/c0;
+            endBetaZ(i) = velocityZ(end)/c0;
             endBeta(i)  = sqrt(endBetaR(i)^2+endBetaZ(i)^2);
             endGamma(i) = 1/sqrt(1-endBeta(i)^2);
-            exitR(i) = trajectoriesY(end);
+            exitR(i) = trajectoriesX(end);
         end
-        len = length(trajectoriesX);
+        len = length(trajectoriesZ);
+        Z (i,:) = [trajectoriesZ,  NaN*ones(1,trajMaxLen-len)];
         X (i,:) = [trajectoriesX,  NaN*ones(1,trajMaxLen-len)];
-        Y (i,:) = [trajectoriesY,  NaN*ones(1,trajMaxLen-len)];
-        U (i,:) = [velocityX,  NaN*ones(1,trajMaxLen-len)];
-        W (i,:) = [velocityY,  NaN*ones(1,trajMaxLen-len)];
+        Vz (i,:) = [velocityZ,  NaN*ones(1,trajMaxLen-len)];
+        Vx (i,:) = [velocityX,  NaN*ones(1,trajMaxLen-len)];
 
-        trajectoryLen (i) = length(trajectoriesX); 
+        trajectoryLen (i) = length(trajectoriesZ); 
 %         fprintf('Done Calculating Trajectory %d\n', i)
     end
     focusedMask = logical(focusedMask);
@@ -117,16 +104,16 @@ if (simulatePhaseSpace)
 %     end
    
     %---------Phase Space Figure---------%
-    fig = plotPhaseSpace( focusedMask, hitMask, numOfParticles, exitR, entryRvec, ...
-                                    startGamma, startBetaR, endGamma, endBetaR, Y ,notFocusedMask, true);
+    fig = plotPhaseSpace( focusedMask, hitMask, numOfParticles, exitR, entryRvecSigned, ...
+                                    startGamma, startBetaR, endGamma, endBetaR, X ,notFocusedMask, true);
                                 
     parameters = creatTrajParamsString(q, m, numOfParticles, hitMask, focused, endBetaZ,...
                                        endBetaR, exitR, electrodeProximityThresh, exitRthresh, lowAxialVel,...
-                                       highAxialVel, lowRadialVel,highRadialVel, entryRvec, useAngle, entryVel);
+                                       highAxialVel, lowRadialVel,highRadialVel, entryRvecSigned, useAngle, entryVel);
        %---------Phase Space Video---------%
     if(recordPhaseSpace) 
-       phaseSpaceVideo( q, m, numOfParticles, focused, focusedMask, X, Y, U, W, lowAxialVel, highAxialVel,...
-                                lowRadialVel, highRadialVel, entryRvec, zGrid, startBetaR, startGamma);
+       phaseSpaceVideo( q, m, numOfParticles, focused, focusedMask, Z, X, Vz, Vx, lowAxialVel, highAxialVel,...
+                                lowRadialVel, highRadialVel, entryRvecSigned, zGrid, startBetaR, startGamma);
     end
 else
     %------------------------------------%
@@ -140,26 +127,21 @@ else
         radialEntryVelocity = entryVel*sin(deg2rad(entryAngle));
     end
     
-    if (useRelativeTrajectory)
-    [ X, Y, U, W, hitElectrode] =  relativeParticleTrajectory(Voltage, zGrid, rGrid, q, m, axialEntryVelocity,...
+    [ Z, X, Vz, Vx, hitElectrode] =  relativeParticleTrajectory(Voltage, zGrid, rGrid, q, m, axialEntryVelocity,...
                                              radialEntryVelocity, entryR, entryZ, electrodeProximityThresh,...
                                              deviceRadius, leftElectrodeRadius, rightElectrodeRadius, electordesZ);
-    else
-    [ X, Y, U, W ,hitElectrode] =  ParticleTrajectory(Voltage, zGrid, rGrid, q, m, axialEntryVelocity,...
-                                             radialEntryVelocity, entryR, entryZ, electrodeProximityThresh,...
-                                             deviceRadius, leftElectrodeRadius, rightElectrodeRadius, electordesZ);
-    end
+
     toc
     %------------------------------------%
     %---------------Figures--------------%
     %------------------------------------%
     fig = 0; %tmp
-    if (min(U) < 0) %if particle started a motion backwards          
+    if (min(Vz) < 0) %if particle started a motion backwards          
         plotProbParticle;
     end
     focused = 0;
     focusedMask = 0;
-    if (Y(end)*1e3 < exitRthresh) && (hitElectrode == 0)
+    if (X(end)*1e3 < exitRthresh) && (hitElectrode == 0)
         focused = 1;
         focusedMask =1;
     end
@@ -174,9 +156,9 @@ else
           ['R_i_n: ',num2str(entryR*1e3),'[mm]'];
           ' ';
            '----Particles Exit Parameters----';
-          ['V_z_-_o_u_t: ', num2str(X(end)/c0),'[c]'];
-          ['V_r_-_o_u_t: ', num2str(W(end)/c0),'[c]'];
-          ['R_o_u_t: ',num2str(Y(end)*1e3),'[mm]'];
+          ['V_z_-_o_u_t: ', num2str(Z(end)/c0),'[c]'];
+          ['V_r_-_o_u_t: ', num2str(Vx(end)/c0),'[c]'];
+          ['R_o_u_t: ',num2str(X(end)*1e3),'[mm]'];
           ['Hit: ', num2str(hitElectrode)]
           ['Focused: ', num2str(focused)];
           };
