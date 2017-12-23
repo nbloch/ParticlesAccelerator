@@ -32,9 +32,8 @@ function [focused_particles_percent, randomSeed] = runSim(params)
     filename = sprintf('./simulations/%s/deviceSimResults.mat', simGlobalName);
     calcPotential = ((exist (string(filename), 'file') == 0) && eraseOldSim);
     if(~calcPotential)
-        load(filename, 'oldDeviceParams', 'V', 'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'MSE', 'Mbleft', 'Mbright', 'Q');
-
-         if(~isequal(oldDeviceParams, deviceParams))
+        load(filename, 'oldDeviceParams', 'V', 'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'MSE', 'Mbleft', 'Mbright','NLeft', 'Q');
+        if(~isequal(oldDeviceParams, deviceParams))
             calcPotential = true;
         end
     end
@@ -51,6 +50,7 @@ function [focused_particles_percent, randomSeed] = runSim(params)
         Mbleft = [];
         Mbright = [];
         Q= [];
+        NLeft = [];
         disp('The potential is being computed...');
     else
         disp('Using precomputed potential');
@@ -89,13 +89,13 @@ function [focused_particles_percent, randomSeed] = runSim(params)
               ... %Single Particle
               'axialEntryVelocity', 'radialEntryVelocity', 'entryR','exitRthresh', ...
               ... %Cached Results
-              'calcPotential', 'V', 'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'MSE', 'Mbleft', 'Mbright','Q'};         
+              'calcPotential', 'V', 'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'MSE', 'Mbleft', 'Mbright','NLeft','Q'};         
     for i=1:length(parsStr(:))
         varname = parsStr{i};
         simPars.(varname)=eval(varname);
     end
 
-    [ V, X, Y, U, W, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, Mbleft, Mbright, focused_particles, Q ] = FullEinzelSim(simPars);
+    [ V, Z, X, Vz, Vx, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, Mbleft, Mbright, NLeft, focused_particles, Q ] = FullEinzelSim(simPars);
 
     %---------------------------%
     %Prepare File system
@@ -123,18 +123,18 @@ function [focused_particles_percent, randomSeed] = runSim(params)
          %for cahching
          save('../deviceSimResults.mat', 'oldDeviceParams',  'V','MSE',...
              'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'Mbleft',...
-             'Mbright', 'Ez', 'Er', 'Q');
+             'Mbright', 'Ez', 'Er', 'Q', 'NLeft');
          %saving lens results
          if (SingleSim) 
              movefile('../deviceSimResults.mat');
          else
              save(['../DeviceResults/', simPdName,'.mat'],  ...
                  'V','MSE', 'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb',...
-                 'Mbleft', 'Mbright', 'Ez', 'Er', 'Q');
+                 'Mbleft', 'Mbright', 'Ez', 'Er', 'Q', 'NLeft');
          end
      end 
      
-     save('ParticleTrajectory.mat', 'X', 'Y', 'U', 'W')
+     save('ParticleTrajectory.mat', 'Z', 'X', 'Vz', 'Vx')
 
      if (savePlots)
          if(plotFullSim);                                savefig(fig.FullSim, 'FullSim.fig','compact');                  end

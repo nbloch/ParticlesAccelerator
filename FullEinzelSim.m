@@ -1,4 +1,4 @@
-function [ V, Z, X, Vz, Vx, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, Mbleft, Mbright, focused_particles, Q ] =...
+function [ V, Z, X, Vz, Vx, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, Mbleft, Mbright, NLeft, focused_particles, Q ] =...
     FullEinzelSim(simPars)
 %NOTE: The parameters "calcPotential, V, zGrid, rGrid, Rq, Zq, MSE" are
 % used for device potential caching. if calcPotential is set to true, the
@@ -16,17 +16,24 @@ if (~plotChargeDistribution && ~plotPhaseSpaceVideo && ~plotProblematicParticles
     ~plotFullSim            && ~plotEmittanceVsZ    && ~plotPhaseSpace           && ~dimensionsOptimization)
     fig = 0;
 end
-addpath(genpath([pwd]));
+addpath(genpath(pwd));
 %--------------------------------
-%Params For trajectory
+%Params For Simulation
 %--------------------------------
-
 deviceLength = repetitions*distanceBetweenElectrodes + lensPreOffset + lensPostOffset;
-
+q0 =  -1.60217662e-19;
+eM = 9.10938356e-31;
 if(simulateElectron)
-   q =  -1.60217662e-19;
-   m = 9.10938356e-31;
+    q = q0;
+    m= eM;
+else
+    q = q*0;
+    m = m*eM;
 end
+trajParams = {};
+trajectoryLen = 0;
+focused_particles = 0;
+Z = []; X = []; Vz = []; Vx = [];
 
 %--------------------------------
 %Calculating Operating Point
@@ -48,27 +55,20 @@ if(calcPotential)
                                               deviceRadius, distanceBetweenElectrodes, N, M, repetitions, rPts, zPts, lensPreOffset, lensPostOffset);
     toc;
 end
-
+    
 if (plotChargeDistribution); fig.ChargeDist = displayChargeDistribution( repetitions, Rq, Q, N, NLeft, VaLeft, VaRight ); end
-
 deviceParams  = creatFullParamsString( electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
                                                deviceRadius, distanceBetweenElectrodes, deviceLength, ...
                                                VaLeft, VaRight, MSE, M, N);
-
-
+%--------Process Results--------%
+Rq = [Rq, -Rq];
+Zq = [Zq,  Zq];
+z_step = zGrid(1,2) - zGrid(1,1);
+r_step = rGrid(2,1) - rGrid(1,1);
+[Ez, Er] = gradient(-V, z_step, r_step);                                           
 %--------------------------------
 %Calculating Particle Trajectory
 %--------------------------------
-Rq = [Rq, -Rq];
-Zq = [Zq,  Zq];
-Z = []; X = []; Vz = []; Vx = [];
-z_step = zGrid(1,2) - zGrid(1,1);
-r_step = rGrid(2,1) - rGrid(1,1);
-[Ez, Er] = gradient(-V, z_step, r_step);
-trajParams = {};
-trajectoryLen = 0;
-focused_particles = 0;
-
 if (simulateMultiParticles)
     tic;
     [ Z, X, Vz, Vx, fig.PhaseSpace, fig.EmittanceVsZ, trajParams, trajectoryLen, focused_particles] = ...

@@ -1,83 +1,96 @@
 c0 = 3e8;
 e0 = -1.60217662e-19;
 eM = 9.10938356e-31;          
-            
 
-params.dimensionsOptimization    = false;
-params.simulateTrajectory        = true;
-params.useAngle                  = true;
-params.use_bessel                = false;
-params.simulateElectron          = true;
-params.BunchOrSingle             = false;
+%device Parameters
+params.deviceRadius              = 5/1e6;
+params.lensPreOffset             = 2/(1e6);
+params.lensPostOffset            = 2/(1e6);
+params.distanceBetweenElectrodes = 1/1e6;
+params.leftElectrodeRadius       = 1/1e6;
+params.rightElectrodeRadius      = 1/1e6;
+params.electrodeWidth            = 0.01/1e6;
+params.repetitions               = 1;
 params.VaLeft                    = -15;
 params.VaRight                   = 15;
-params.electrodeWidth            = 1e-8;
-params.leftElectrodeRadius       = 1e-6;
-params.rightElectrodeRadius      = 1e-6;
-params.deviceRadius              = 5e-6;
-params.distanceBetweenElectrodes = 1e-6;
-params.repetitions               = 1;
-params.sideOffset                = 2-6;
+
+%Resolution Parameters     
 params.M                         = 730;
-params.N                         = 290;
+params.N                         = 290;     
 params.rPts                      = 500;
 params.zPts                      = 500;
+params.dimensionsOptimization    = false;
 params.convergeTh                = 5e-8;
 params.growthTh                  = 0.5e-4;
-params.entryVel                  = 0.1*c0;
-params.entryAngle                = 30;
-params.entryR                    = 0;
-params.q                         = 1*e0;
-params.m                         = 1*eM;
-params.axialEntryVelocity        = 0.1*c0;
-params.radialEntryVelocity       = 0.05*c0;
-params.electrodeProximityThresh  = 1e-8;
-params.numOfParticles            = 1000;
-params.lowAxialVel               = 0.1*c0;
-params.highAxialVel              = 0.3*c0;
-params.low         = 0.001*c0;
-params.highRadialVel             = 0.05*c0;
-params.exitRthresh               = 0.25e-6;
-params.beamInitialRadius         = 5e-7;
-params.simulatePhaseSpace        = 1;
-params.genNewSeed                = true;
-params.simGlobalName             = 'ElectroStaticLens';
-params.eraseOldSim               = true;    
-% params.recordPhaseSpace          = true;
-params.recordPhaseSpace          = false;
-params.SingleSim                 = true;
-params.Ek                        = 10e3;    %eV units
-params.maxInitMoment             = 1e-3;
 
-saveDefaultVals(params);
+%what To Simulate
+params.dontSimulateTrajectory  =  false;
+params.simulateSingleParticle  =  false;
+params.simulateMultiParticles  =  true;
+
+%Figures
+params.plotFullSim              = true;
+params.plotPhaseSpace           = true;
+params.plotPhaseSpaceVideo      = false;
+params.plotChargeDistribution   = true;
+params.plotProblematicParticles = true;
+params.plotEmittanceVsZ         = true;
+
+%Particle Parameters
+params.electrodeProximityThresh  = 0.01/1e6;
+params.q                         = 1;
+params.m                         = 1;
+params.simulateElectron          = true;
+
+%Multi Particle
+params.numOfParticles    = 1000;
+params.beamInitialRadius = 0.5/1e6;
+params.maxInitMoment     = 1e-3;
+params.Ek                = 10*1e3;
+
+%Single Particle - irrelevant for this sim
+params.axialEntryVelocity  = 0.1*c0;
+params.radialEntryVelocity = 0.05*c0;
+params.entryR              = 0;
+params.exitRthresh         = 0.25/1e6;
+
+%Save Sim
+params.simName       = 'lens';
+params.simGlobalName = 'Simulations - Emittance Style6';
+params.eraseOldSim   = true;
+params.genNewSeed    = true;
+params.savePlots     = true;
+params.simPdName     = 'Repetitions';
+params.SingleSim     = false;
+
 paramsFields = fieldnames(params);
 
 iterParamsCharges = struct();
 iterParamsDevice = struct();
 
 %charge parameters iteration variables definitions
-
-iterParamsCharges.Ek                        = [10e3, 100e3];    %eV units
-iterParamsCharges.maxInitMoment             = [1e-3, 1e-2];
-
-
-%device parameters iteration variables definitions
-
-iterParamsDevice.globalVa = [10,15,30,50,100];
-%iterParamsDevice.repetitions = [1,2,3,5,7,9];
-iterParamsDevice.distanceBetweenElectrodes=[0.5,0.75,1,1.25,2]/1e6;
-iterParamsDevice.globalElectrodeRadius=[0.25,0.5,0.75,1,1.5,2]/1e6;
+% 
+% iterParamsCharges.Ek                        = [10e3, 100e3];    %eV units
+% iterParamsCharges.maxInitMoment             = [1e-3, 1e-2];
+% 
+% 
+% %device parameters iteration variables definitions
+% 
+% iterParamsDevice.globalVa = [10,15,30,50,100];
+% %iterParamsDevice.repetitions = [1,2,3,5,7,9];
+% iterParamsDevice.distanceBetweenElectrodes=[0.5,0.75,1,1.25,2]/1e6;
+% iterParamsDevice.globalElectrodeRadius=[0.25,0.5,0.75,1,1.5,2]/1e6;
 
 
 %DEBUG
-% iterParamsCharges.entryVel=[0.05,0.075]*c0;
-% iterParamsDevice.globalVa = [10,15]*1e3;
-% iterParamsDevice.repetitions = [1,2];
-% params.M                         = 100;
-% params.N                         = 25;
-% params.rPts                      = 200;
-% params.zPts                      = 200;
-% params.numOfParticles            = 10;
+iterParamsCharges.Ek=[10e3,100e3];
+iterParamsDevice.globalVa = [15,30]*1e3;
+iterParamsDevice.repetitions = [1,2];
+params.M                         = 100;
+params.N                         = 25;
+params.rPts                      = 200;
+params.zPts                      = 200;
+params.numOfParticles            = 10;
 
 
 pcNames = fieldnames(iterParamsCharges);
@@ -96,6 +109,7 @@ if(exist('SimulationsLog.txt', 'file'))
     delete('SimulationsLog.txt')
 end
 
+saveDefaultVals(params);
 log = fopen('SimulationsLog.txt', 'wt');
 fprintf(log, "Beginning %s... Time: %s \n",params.simGlobalName, datetime('now'));
 

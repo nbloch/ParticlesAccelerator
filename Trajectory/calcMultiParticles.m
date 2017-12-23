@@ -125,8 +125,11 @@ if(plotEmittanceVsZ)
 end
 %---------Phase Space Video---------%
 if(recordPhaseSpace) 
-   phaseSpaceVideo( q, m, numOfParticles, focused, focusedMask, Z, X, Vz, Vx, lowAxialVel, highAxialVel,...
-                            lowRadialVel, highRadialVel, entryRvecSigned, zGrid, startBetaR, startGamma);
+%    phaseSpaceVideo( q, m, numOfParticles, focused, focusedMask, Z, X, Vz, Vx, lowAxialVel, highAxialVel,...
+%                             lowRadialVel, highRadialVel, entryRvecSigned, zGrid, startBetaR, startGamma);
+                        
+   phaseSpaceVideo( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), entryRvecSigned(passRows),...
+                   zGrid, startBetaR(passRows), startGamma(passRows), params, lambda0)
 end
 
 focused_particles = sum(focusedMask);
