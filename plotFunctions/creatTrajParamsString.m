@@ -1,16 +1,13 @@
-function [ trajParams ] = creatTrajParamsString(q, m, numOfParticles, hitMask, focused, endBetaZ,...
-                                                endBetaR, exitR, proxTh, exitRthresh, lowAxialVel,...
-                                                highAxialVel, lowRadialVel,highRadialVel, entryR, useAngle, entryVel)
+function [ trajParams ] = creatTrajParamsString(q, m, numOfParticles, hitMask, focused, exitR, proxTh, exitRthresh, Ek, entryPr, exitPr, entryR, ...
+                                                entryEmittance, exitEmittance)
 %CREATTRAJPARAMSSTRING Summary of this function goes here
 %   Detailed explanation goes here
 c0 = 3e8;
 e0 =  -1.60217662e-19;
 eM = 9.10938356e-31;
+dimFactor = 1e6;
+scaleStr = '[\mum]';
 
-exitLowAxialVel   = min(endBetaZ(~hitMask));
-exitHighAxialVel  = max(endBetaZ(~hitMask));
-exitLowRadialVel  = min(abs(endBetaR(~hitMask)));
-exitHighRadialVel = max(abs(endBetaR(~hitMask)));
 exitRRange        = max(abs(exitR(~hitMask)));
 entryRRange       = max(abs(entryR(~hitMask)));
 particleParams = {' ';
@@ -19,24 +16,18 @@ particleParams = {' ';
   ['M: ', num2str(m/eM),'[e_M]'];
   ['Number of Particles: ', num2str(numOfParticles)];
   ' ';};
-if (useAngle)
-    entryParams ={'----Particle Entry Parameters----';
-  ['V_i_n: ', num2str(entryVel/c0),'[c]'];
-  ['R_i_n: ', num2str(-entryRRange*1e3),', ',num2str(entryRRange*1e3),'][mm]'];
-  ' ';};   
-else
 entryParams ={'----Particle Entry Parameters----';
-  ['V_z_-_i_n: [', num2str(lowAxialVel/c0),', ',num2str(highAxialVel/c0),'][c]'];
-  ['V_r_-_i_n: [', num2str(lowRadialVel/c0),', ',num2str(highRadialVel/c0),'][c]'];
-  ['R_i_n: [', num2str(-entryRRange*1e3),', ',num2str(entryRRange*1e3),'][mm]'];
+  ['R_i_n: [', num2str(0),', ',num2str(entryRRange*dimFactor),']',scaleStr];
+  ['Ek_i_n: ', num2str(Ek)/1e3,'[KeV]'];
+  ['P_r_,_i(max): ',num2str(entryPr)];
+  ['\epsilon_i: ', num2str(entryEmittance)];
   ' ';};
-end 
-  exitParams = {'----Particles Exit Parameters----';
-  ['V_z_-_o_u_t: [', num2str(exitLowAxialVel),', ',num2str(exitHighAxialVel),'][c]'];
-  ['V_r_-_o_u_t: [', num2str(exitLowRadialVel),', ',num2str(exitHighRadialVel),'][c]'];
-  ['R_o_u_t: [', num2str(-exitRRange*1e3),', ',num2str(exitRRange*1e3),'][mm]'];
-  ['d_p_r_o_x: ', num2str(proxTh*1e6), '[\mum]']
-  ['R_f_o_c_u_s: ', num2str(exitRthresh*1e3), '[mm]'];
+exitParams = {'----Particles Exit Parameters----';
+  ['R_o_u_t: [', num2str(0),', ',num2str(exitRRange*dimFactor),']',scaleStr];
+  ['P_r_,_f(max): ',num2str(exitPr)];
+  ['\epsilon_f: ', num2str(exitEmittance)];
+  ['d_p_r_o_x: ', num2str(proxTh*dimFactor), scaleStr]
+  ['R_f_o_c_u_s: ', num2str(exitRthresh*dimFactor), scaleStr];
   ['Hit: ', num2str(sum(hitMask))];
   ['Focused: ', num2str(focused)];
   };

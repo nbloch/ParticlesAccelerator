@@ -10,7 +10,7 @@ gamma = 1./sqrt(1-((W.^2+U.^2)./(c0^2)));
 phase = gamma.*W./c0;
 startPhase = startGamma.*startBetaR;
 
-entryR = max(abs(entryRvec))*1e3;
+entryR = max(abs(entryRvec))*1e6;
 videoFWriter = vision.VideoFileWriter('phaseSpace.avi','FrameRate',10,'FileFormat','AVI');
  vidParams = {' ';
        '------Current Position-------';
@@ -25,7 +25,7 @@ videoFWriter = vision.VideoFileWriter('phaseSpace.avi','FrameRate',10,'FileForma
        '--Entry Parameters--';
       ['V_z_-_i_n: [', num2str(lowAxialVel/c0),', ',num2str(highAxialVel/c0),'][c]'];
       ['V_r_-_i_n: [', num2str(lowRadialVel/c0),', ',num2str(highRadialVel/c0),'][c]'];
-      ['R_i_n: [', num2str(-entryR),', ',entryR,'][mm]'];
+      ['R_i_n: [', num2str(-entryR),', ',num2str(entryR),'][\mum]'];
       };
   
 xl = max(abs([min(min(min(Y(focusedMask,:))),     min(entryRvec (focusedMask)))  max(max(max(Y(focusedMask,:))),     max(entryRvec(focusedMask)))]));

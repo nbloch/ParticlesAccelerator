@@ -1,6 +1,5 @@
 function [r_q, z_q, r_b, z_b, Vm, NLeft, NRight, lastZoff, MLeft, MRight] = buildLens( M, N, distanceBetweenElectrodes, electrodeWidth, ...
-                                                  deviceRadius, leftElectrodeRadius, rightElectrodeRadius,...
-                                                   VaLeft, VaRight, repetitions)
+                                                  deviceRadius, leftElectrodeRadius, rightElectrodeRadius,VaLeft, VaRight, repetitions)
 
                                                
 

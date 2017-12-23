@@ -1,30 +1,24 @@
-function [V, zGrid, rGrid, MSE, fig, Rq, Zq, Rb, Zb, MLeft, MRight, Qvec] = calcFullLensPotential( VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
-                                              deviceRadius, distanceBetweenElectrodes, N, M, use_bessel, repetitions, deviceLength,...
-                                              rPts, zPts)
+function [V, zGrid, rGrid, MSE, Rq, Zq, Rb, Zb, MLeft, MRight, NLeft, Qvec] = calcFullLensPotential( VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
+                                              deviceRadius, distanceBetweenElectrodes, N, M, repetitions, rPts, zPts, lensPreOffset, lensPostOffset)
 %-----------------------------
 %Calculate Charge Distribution
 %-----------------------------
 
 [Q, Rq, Zq, Rb, Zb, MSE, NLeft, NRight, lastZoff, MLeft, MRight] = getChargesRepetitive(VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
-                                              deviceRadius, distanceBetweenElectrodes, N, M, use_bessel, repetitions );
+                                              deviceRadius, distanceBetweenElectrodes, N, M, repetitions );
 fprintf('Done Getting Charges\n');
 Qvec = Q;
-%---------------------
-%Plotting
-%---------------------
-% fig = 0;
-% if (plotResults)
-    fig = displayChargeDistribution( repetitions, Rq, Q, N, NLeft, VaLeft, VaRight );
-% end 
 
 %---------------------
 %Create Grid
 %---------------------
+leftLength = -lensPreOffset-(repetitions*distanceBetweenElectrodes)/2;
+rightLength = lensPostOffset+(repetitions*distanceBetweenElectrodes)/2;
 
 r = linspace(0, deviceRadius, rPts);
-z = linspace (0, deviceLength, zPts);
-z = [-flip(z), z];
-z(zPts) = [];
+z = linspace (leftLength, rightLength, 2*zPts);
+% z = [-flip(z), z];
+% z(zPts) = [];
 
 [z_mat, r_mat] = meshgrid(z,r);
 
@@ -43,26 +37,11 @@ R = repmat(reshape(Rq,1,1,length(Rq)),size(r_mat,1), size(r_mat,2));
 Z = repmat(reshape(Zq,1,1,length(Zq)),size(r_mat,1), size(r_mat,2));
 Q  =repmat(reshape(Q,1,1,length(Q)),size(r_mat,1), size(r_mat,2));
 
+V = sum(Q.*spatial_green(r_mat, z_mat, R, Z),3);
 
-if (use_bessel)
-    V = sum(Q.*BesselRingPotential(r_mat, z_mat, R, Z),3);
-else
-   V = sum(Q.*spatial_green(r_mat, z_mat, R, Z),3);
-end
 fprintf('Done Computing Full Space Potential\n');
 
 Vflipped = flip(V);
 Vflipped(1,:) = [];
 V = [Vflipped; V];
-
-%We want to avoid very high value points that may make the colormap less readable
-% Vmax = max(VaLeft, VaRight);
-% Vmin = min(VaLeft, VaRight);
-% V(V > Vmax) = Vmax;
-%We want to avoid very high value points that may make the colormap less readable
-% Vmax = max(VaLeft, VaRight);
-% Vmin = min(VaLeft, VaRight);
-% V(V > Vmax) = Vmax;
-% V(V<Vmin) = Vmin;
-
 end

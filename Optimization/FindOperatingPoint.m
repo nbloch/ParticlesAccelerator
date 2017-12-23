@@ -1,6 +1,6 @@
-function [ N, M, MSE, fig ] = FindOperatingPoint(VaLeft, VaRight, electrodeWidth,leftElectrodeRadius,...
-                                       rightElectrodeRadius, deviceRadius, distanceBetweenElectrodes,...
-                                       use_bessel, repetitions, deviceLength, convergeTh, growthTh )
+function [ N, M, MSE, fig ] = FindOperatingPoint(VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
+                                       deviceRadius, distanceBetweenElectrodes,repetitions, convergeTh, growthTh )
+                                       
 %Gets the geometry of the problem and the number of boundaries required,
 %and finds the minimal number of charges that minimizes the MSE
 Nstep = 10;
@@ -24,7 +24,7 @@ for i=1:length(N_vec)
     M = 2*N_vec(i);
     for j = 1:maxMperN
         [~, ~, ~, ~, ~, tmp(j)] = getChargesRepetitive(VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
-                                              deviceRadius, distanceBetweenElectrodes, N_vec(i), M, use_bessel, repetitions);                             
+                                              deviceRadius, distanceBetweenElectrodes, N_vec(i), M, repetitions);                             
 
         M_vec(j) = M;
         M = M + Mstep;

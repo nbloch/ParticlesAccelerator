@@ -32,7 +32,8 @@ function [ Z, R, U, V, hitElectrode ] = relativeParticleTrajectory(Voltage, z_gr
    R(i)     = entryR;
    U(i)     = entryAxialVel;
    V(i)     = entryRadialVel;
-
+   
+   hitElectrode = 0;
 
 % figure();
 % title('Particle Trajectory In Electrostatic Lens');
@@ -102,5 +103,7 @@ function [ Z, R, U, V, hitElectrode ] = relativeParticleTrajectory(Voltage, z_gr
 %        plot(Z,R,'-r')
 %        pause(0.05)
    end
-
+   if (abs(R(i)) > deviceRadius) 
+       R(i)= deviceRadius * sign(R(i));
+   end
 end
