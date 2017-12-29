@@ -1,4 +1,4 @@
-function [] = phaseSpaceVideo( Z, X, Vz, Vx, entryRvec, zGrid, startBetaR, startGamma, params,lambda0)
+function [] = phaseSpaceVideo( Z, X, Vz, Vx, entryRvec, zGrid, startBetaR, startGamma, params)
 %PHASESPACEVIDEO Summary of this function goes here
 %   Detailed explanation goes here
 c0 = 3e8;
@@ -27,7 +27,7 @@ for j=1:5:length(zGrid(1,:))
     z = zGrid(1,j);
     [~, cols]= min(abs(Z-z),[],2);
     idxs = sub2ind(size(X), rows, cols');
-    emittance = getEmittance( X(idxs), phase(idxs), gamma(idxs), lambda0 );
+    emittance = getEmittance( X(idxs), phase(idxs), gamma(idxs) );
     vidParams{end-2} = ['z: ',num2str(z)];
     vidParams{end-1} = ['\epsilon_c: ',num2str(emittance)];
     vidParams{end}   = ['P_x(max): ',num2str(max(phase(idxs)))];

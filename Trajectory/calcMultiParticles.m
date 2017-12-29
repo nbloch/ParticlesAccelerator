@@ -10,7 +10,6 @@ function [ Z, X, Vz, Vx, phaseSpaceFig, emittanceVsZFig, trajStr, trajectoryLen,
 c0 = 3e8;
 electordesZ = unique(Zq);
 entryZ   = zGrid(1,1);
-lambda0 = 10e-6;
 
 %--------Init Variables---------%
 phaseSpaceFig = 0;
@@ -47,11 +46,6 @@ prVec(prVec.*entryRvecSigned >0) = -prVec(prVec.*entryRvecSigned >0);
 gamma0 = 1 + Ek*abs(q)/(m*c0^2);
 rGamma = gamma0 *(0.999+rand(1,numOfParticles)/500);
 pzVec = sqrt(rGamma.^2 -1 -prVec.^2);
-
-% startBetaR = prVec/(m*c0);
-% startBetaZ = pzVec/(m*c0);
-% startBeta  = sqrt(startBetaZ.^2+startBetaR.^2);
-% startGamma = 1./sqrt(1-startBeta.^2);
 
 startBetaR = prVec./rGamma;
 startBetaZ = pzVec./rGamma;
@@ -98,8 +92,8 @@ passMask = logical(focusedMask+notFocusedMask);
 passRows = 1:size(Z,1);
 passExitIdxs= sub2ind(size(Z), passRows(passMask), trajectoryLen(passMask));
 exitPr = endBetaR(passMask).*endGamma(passMask);
-entryEmittance = getEmittance( entryRvecSigned(passMask), prVec(passMask), rGamma(passMask), lambda0 );
-exitEmittance = getEmittance(X(passExitIdxs), exitPr, endGamma(passMask),lambda0); 
+entryEmittance = getEmittance( entryRvecSigned(passMask), prVec(passMask), rGamma(passMask) );
+exitEmittance = getEmittance(X(passExitIdxs), exitPr, endGamma(passMask)); 
 
 %------------------------------------%
 %----------Figures and Video---------%
@@ -121,7 +115,7 @@ phaseSpaceFig = displayPhaseSpace( focusedMask, numOfParticles, exitR, entryRvec
 end
 
 if(plotEmittanceVsZ)
-    emittanceVsZFig = plotEmittance( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), lambda0, zGrid);
+    emittanceVsZFig = plotEmittance( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), zGrid);
 end
 %---------Phase Space Video---------%
 if(recordPhaseSpace) 
@@ -129,7 +123,7 @@ if(recordPhaseSpace)
 %                             lowRadialVel, highRadialVel, entryRvecSigned, zGrid, startBetaR, startGamma);
                         
    phaseSpaceVideo( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), entryRvecSigned(passRows),...
-                   zGrid, startBetaR(passRows), startGamma(passRows), params, lambda0)
+                   zGrid, startBetaR(passRows), startGamma(passRows), params)
 end
 
 focused_particles = sum(focusedMask);

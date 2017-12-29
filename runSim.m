@@ -1,4 +1,4 @@
-function [focused_particles_percent, randomSeed] = runSim(params)
+function [focused_particles_percent, randomSeed] = runSim(params) %#ok<INUSD>
     %including all sub folders
     addpath(genpath(pwd));
     
@@ -33,24 +33,24 @@ function [focused_particles_percent, randomSeed] = runSim(params)
     calcPotential = ((exist (string(filename), 'file') == 0) && eraseOldSim);
     if(~calcPotential)
         load(filename, 'oldDeviceParams', 'V', 'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'MSE', 'Mbleft', 'Mbright','NLeft', 'Q');
-        if(~isequal(oldDeviceParams, deviceParams))
+        if(~isequal(oldDeviceParams, deviceParams)) %#ok<NODEF>
             calcPotential = true;
         end
     end
 
     if(calcPotential)
-        V =  [];
-        zGrid =  [];
-        rGrid =  []; 
-        Rq = []; 
-        Zq = [];
-        Rb = []; 
-        Zb = [];
-        MSE=[];
-        Mbleft = [];
-        Mbright = [];
-        Q= [];
-        NLeft = [];
+        V =  []; %#ok<NASGU>
+        zGrid =  []; %#ok<NASGU>
+        rGrid =  [];  %#ok<NASGU>
+        Rq = [];  %#ok<NASGU>
+        Zq = []; %#ok<NASGU>
+        Rb = [];  %#ok<NASGU>
+        Zb = []; %#ok<NASGU>
+        MSE=[]; %#ok<NASGU>
+        Mbleft = []; %#ok<NASGU>
+        Mbright = []; %#ok<NASGU>
+        Q= []; %#ok<NASGU>
+        NLeft = []; %#ok<NASGU>
         disp('The potential is being computed...');
     else
         disp('Using precomputed potential');
@@ -63,7 +63,7 @@ function [focused_particles_percent, randomSeed] = runSim(params)
             error('The random seed file does not exist. Check the "Generate new randow seed checkbox.');
         end
         load('randomSeed.mat', 'randomSeed');
-        rng(randomSeed);
+        rng(randomSeed); %#ok<NODEF>
     else
         randomSeed=rng;
         save('randomSeed.mat', 'randomSeed');
@@ -95,7 +95,9 @@ function [focused_particles_percent, randomSeed] = runSim(params)
         simPars.(varname)=eval(varname);
     end
 
-    [ V, Z, X, Vz, Vx, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, Mbleft, Mbright, NLeft, focused_particles, Q ] = FullEinzelSim(simPars);
+    [ V, Z, X, Vz, Vx, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, ...
+        Mbleft, Mbright, NLeft, focused_particles, Q ] ...
+        = FullEinzelSim(simPars); %#ok<ASGLU>
 
     %---------------------------%
     %Prepare File system
@@ -119,7 +121,7 @@ function [focused_particles_percent, randomSeed] = runSim(params)
     %Save Figures and Data
     %---------------------------%
      if (calcPotential)
-         oldDeviceParams = deviceParams;
+         oldDeviceParams = deviceParams; %#ok<NASGU>
          %for cahching
          save('../deviceSimResults.mat', 'oldDeviceParams',  'V','MSE',...
              'zGrid', 'rGrid', 'Rq', 'Zq', 'Rb', 'Zb', 'Mbleft',...
