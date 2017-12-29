@@ -19,9 +19,9 @@ ylimits = 1.1.*[-yl yl];
 rows = 1:size(X,1); 
 for j=1:5:length(zGrid(1,:))
     phaseSpaceVidFig = figure();
-    set(gcf, 'Position', [0 0 1920 1080])
+    set(gcf, 'Position', [0 0 1500 750])
     ax1 = axes('Position',[0 0.05 0.5 0.815],'Visible','off');
-    ax2 = axes('Position',[0.17 0.1 0.8 0.8],'Visible','off');
+    ax2 = axes('Position',[0.17 0.25 0.5 0.5],'Visible','off');
     axes(ax2)
     
     %finding the points and calculating the emittance

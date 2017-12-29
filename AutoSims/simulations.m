@@ -69,27 +69,28 @@ iterParamsCharges = struct();
 iterParamsDevice = struct();
 
 %charge parameters iteration variables definitions
-% 
-% iterParamsCharges.Ek                        = [10e3, 100e3];    %eV units
-% iterParamsCharges.maxInitMoment             = [1e-3, 1e-2];
-% 
-% 
-% %device parameters iteration variables definitions
-% 
-% iterParamsDevice.globalVa = [10,15,30,50,100];
-% %iterParamsDevice.repetitions = [1,2,3,5,7,9];
-% iterParamsDevice.distanceBetweenElectrodes=[0.5,0.75,1,1.25,2]/1e6;
-% iterParamsDevice.globalElectrodeRadius=[0.25,0.5,0.75,1,1.5,2]/1e6;
+
+iterParamsCharges.Ek                        = [10e3, 100e3];    %eV units
+iterParamsCharges.maxInitMoment             = [1e-3, 1e-2];
+
+
+%device parameters iteration variables definitions
+
+iterParamsDevice.globalVa = [10,15,30,50,100,300,500,750,1000,2000];
+%iterParamsDevice.repetitions = [1,2,3,5,7,9];
+iterParamsDevice.distanceBetweenElectrodes=[0.5,0.75,1,1.25,2]/1e6;
+iterParamsDevice.globalElectrodeRadius=[0.25,0.5,0.75,1,1.5,2]/1e6;
+iterParamsDevice.params.lensPreOffset = [1,1.5,2,2.5,3,4,5]/(1e6);
 
 
 %DEBUG
-iterParamsCharges.Ek=[10e3];
-iterParamsDevice.globalVa = [15,30];
-params.M                         = 100;
-params.N                         = 25;
-params.rPts                      = 200;
-params.zPts                      = 200;
-params.numOfParticles            = 10;
+% iterParamsCharges.Ek=[10e3, 100e3];
+% iterParamsDevice.globalVa = [15,100];
+% params.M                         = 100;
+% params.N                         = 25;
+% params.rPts                      = 200;
+% params.zPts                      = 200;
+% params.numOfParticles            = 10;
 
 
 pcNames = fieldnames(iterParamsCharges);
@@ -162,23 +163,30 @@ end
         for pcNameInd = 1:numel(pcNames)
             pcName = pcNames{pcNameInd};
             fig = figure;
-            deltaEmittance = 100*(exitEmittance-entryEmittance)/entryEmittance;
-            plot(results.in.charges.(pcName), deltaEmittance, '-o');
+            entryEmittance = results.out.(pdName).(pcName).entryEmittance;
+            exitEmittance = results.out.(pdName).(pcName).exitEmittance;
+            deltaEmittance = 100*(exitEmittance-entryEmittance)./entryEmittance;
+            plot(results.in.device.(pdName), deltaEmittance, '-o');
             tit = ['\DeltaEmittance vs. ', pdName, ' and ',  pcName];
             title(tit);
-            xlabel(pcName);
+            xlabel(pdName);
             ylabel('\DeltaEmittance [%]');
             hold on
+            
            %Plots the focused particles. Needs to be restored when we get a
            %closed formula for focused particles
+           %TODO: plot it on two different graphs
 %             plot(results.in.charges.(pcName), results.out.(pdName).(pcName).focused, '-o');
+%             plot(results.in.device.(pdName), results.out.(pdName).(pcName).focused, '-o');
 %             tit = ['Focused Particles vs. ', pdName, ' and ',  pcName];
 %             title(tit);
-%             xlabel(pcName);
+%             xlabel(pdName);
 %             ylabel('Focused particles [%]');
-%             ylim([0,110]);
-            legstr = string(results.in.device.(pdName));
-            legstr = strcat(strjoin([pdName, " = "]), legstr); 
+%             ylim([0,100]);
+            
+            
+            legstr = string(results.in.charges.(pcName));
+            legstr = strcat(strjoin([pcName, " = "]), legstr); 
             legend(legstr);
             savefig(fig, ['./simulations/', params.simGlobalName,'/simulationsSummary/', tit, '.fig']);
             close(fig);
