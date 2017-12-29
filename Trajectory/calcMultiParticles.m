@@ -92,8 +92,9 @@ passMask = logical(focusedMask+notFocusedMask);
 passRows = 1:size(Z,1);
 passExitIdxs= sub2ind(size(Z), passRows(passMask), trajectoryLen(passMask));
 exitPr = endBetaR(passMask).*endGamma(passMask);
-entryEmittance = getEmittance( entryRvecSigned(passMask), prVec(passMask), rGamma(passMask) );
-exitEmittance = getEmittance(X(passExitIdxs), exitPr, endGamma(passMask)); 
+exitPz = endBetaZ(passMask).*endGamma(passMask);
+[entryEmittance, erri] = getEmittance( entryRvecSigned(passMask), prVec(passMask), pzVec(passMask), rGamma(passMask) );
+[exitEmittance, errf] = getEmittance(X(passExitIdxs), exitPr, exitPz, endGamma(passMask)); 
 
 %------------------------------------%
 %----------Figures and Video---------%
@@ -110,7 +111,7 @@ end
 %---------Phase Space Figure---------%
 
 if(plotPhaseSpace)
-phaseSpaceFig = displayPhaseSpace( focusedMask, numOfParticles, exitR, entryRvecSigned, ...
+phaseSpaceFig = displayPhaseSpace( passMask, numOfParticles, exitR, entryRvecSigned, ...
                                     startGamma, startBetaR, endGamma, endBetaR, notFocusedMask, true, params);
 end
 
@@ -118,14 +119,11 @@ if(plotEmittanceVsZ)
     emittanceVsZFig = plotEmittance( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), zGrid);
 end
 %---------Phase Space Video---------%
-if(recordPhaseSpace) 
-%    phaseSpaceVideo( q, m, numOfParticles, focused, focusedMask, Z, X, Vz, Vx, lowAxialVel, highAxialVel,...
-%                             lowRadialVel, highRadialVel, entryRvecSigned, zGrid, startBetaR, startGamma);
-                        
+if(recordPhaseSpace)                         
    phaseSpaceVideo( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), entryRvecSigned(passRows),...
                    zGrid, startBetaR(passRows), startGamma(passRows), params)
 end
 
-focused_particles = sum(focusedMask);
+focused_particles = sum(passMask);
 fprintf('Done Calculating Trajectories\n')
 end

@@ -13,13 +13,14 @@ end
 fig = figure();
     ax1 = axes('Position',[0 0.05 0.5 0.815],'Visible','off');
     ax2 = axes('Position',[0.17 0.1 0.8 0.8],'Visible','off');
+    axes(ax1);
+    text(.025,0.55, params_str);
     axes(ax2)
     
     legPlot(1) = plot(NaN,NaN,'r+');    hold on;
     legPlot(2) = plot(NaN,NaN,'b+');
     plot(exitR(focusedMask),  endPhase(focusedMask), 'r+')
     plot(entryRvec(focusedMask),entryPhase(focusedMask), 'b+')
-
     i=1;
     if(plotNotFocused)
         legPlot(3) = plot(NaN,NaN, '-');
@@ -67,8 +68,7 @@ fig = figure();
     xlabel('Entry/Exit R')
     ylabel('\gamma\beta_r')
     title('Particle Phase Space')
-    axes(ax1);
-    text(.025,0.55, params_str);
+
     
 end
 

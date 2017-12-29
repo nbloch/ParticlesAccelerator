@@ -4,14 +4,15 @@ function [] = phaseSpaceVideo( Z, X, Vz, Vx, entryRvec, zGrid, startBetaR, start
 c0 = 3e8;
 
 gamma = 1./sqrt(1-((Vx.^2+Vz.^2)./(c0^2)));
-phase = gamma.*Vx./c0;
+phaseX = gamma.*Vx./c0;
+phaseZ = gamma.*Vz./c0;
 startPhase = startGamma.*startBetaR;
 
 videoFWriter = vision.VideoFileWriter('phaseSpace.avi','FrameRate',10,'FileFormat','AVI');
 vidParams = {' '; '------Shifting-------'; ' ';' ';' ';};
 vidParams = [params; vidParams];   
 xl = max(abs([min([min(min(X)), min(entryRvec)]), max([max(max(X)), max(entryRvec)])]));
-yl = max(abs([min([min(min(phase)), min(startPhase)])  max([max(max(phase)), max(startPhase)])]));
+yl = max(abs([min([min(min(phaseX)), min(startPhase)])  max([max(max(phaseX)), max(startPhase)])]));
 xlimits = 1.1.*[-xl xl];
 ylimits = 1.1.*[-yl yl];
 
@@ -27,17 +28,17 @@ for j=1:5:length(zGrid(1,:))
     z = zGrid(1,j);
     [~, cols]= min(abs(Z-z),[],2);
     idxs = sub2ind(size(X), rows, cols');
-    emittance = getEmittance( X(idxs), phase(idxs), gamma(idxs) );
+    [emittance ,err] = getEmittance( X(idxs), phaseX(idxs),phaseZ(idxs), gamma(idxs) );
     vidParams{end-2} = ['z: ',num2str(z)];
     vidParams{end-1} = ['\epsilon_c: ',num2str(emittance)];
-    vidParams{end}   = ['P_x(max): ',num2str(max(phase(idxs)))];
+    vidParams{end}   = ['P_x(max): ',num2str(max(phaseX(idxs)))];
     
     %plotting
     plot(entryRvec(:), startPhase(:), 'b+');
     hold on;
-    plot(X(idxs), phase(idxs), 'r+')
+    plot(X(idxs), phaseX(idxs), 'r+')
     for i =1:rows(end)
-        plot([X(idxs(i)), entryRvec(i)],[phase(idxs(i)), startPhase(i)])
+        plot([X(idxs(i)), entryRvec(i)],[phaseX(idxs(i)), startPhase(i)])
     end
     title('Changing Phase Space as Beam Spread')
     legend ({'Exit Phase'; 'Start Phase'}, 'Location', 'northeast')
