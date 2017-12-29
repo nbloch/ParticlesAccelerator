@@ -60,7 +60,7 @@ params.simGlobalName = 'Simulations - Emittance Style6';
 params.eraseOldSim   = true;
 params.genNewSeed    = true;
 params.savePlots     = true;
-params.simPdName     = 'Repetitions';
+%params.simPdName     = 'Repetitions';
 params.SingleSim     = false;
 
 paramsFields = fieldnames(params);
@@ -83,9 +83,8 @@ iterParamsDevice = struct();
 
 
 %DEBUG
-iterParamsCharges.Ek=[10e3,100e3];
-iterParamsDevice.globalVa = [15,30]*1e3;
-iterParamsDevice.repetitions = [1,2];
+iterParamsCharges.Ek=[10e3];
+iterParamsDevice.globalVa = [15,30];
 params.M                         = 100;
 params.N                         = 25;
 params.rPts                      = 200;
@@ -145,8 +144,11 @@ for pdNameInd = 1:numel(pdNames)
                                      pdName, pdVal, pcName, pcVal);
                 runParams.simPdName = sprintf('%s-[%d]', pdName, pdVal);
                 
-                [focused_particles_percent, randomSeed] = runSim(runParams);
+                [focused_particles_percent, entryEmittance, exitEmittance, ...
+                    randomSeed] = runSim(runParams);
                 results.out.(pdName).(pcName).focused(pdValInd,pcValInd) = focused_particles_percent;
+                results.out.(pdName).(pcName).entryEmittance(pdValInd,pcValInd) = entryEmittance;
+                results.out.(pdName).(pcName).exitEmittance(pdValInd,pcValInd) = exitEmittance;
                 results.out.(pdName).(pcName).randomSeed(pdValInd,pcValInd) = randomSeed;
                 fprintf(log, "%s DONE, Time: %s \n",runParams.simName, datetime('now'));
             end
@@ -160,12 +162,21 @@ end
         for pcNameInd = 1:numel(pcNames)
             pcName = pcNames{pcNameInd};
             fig = figure;
-            plot(results.in.charges.(pcName), results.out.(pdName).(pcName).focused, '-o');
-            tit = ['Focused Particles vs. ', pdName, ' and ',  pcName];
+            deltaEmittance = 100*(exitEmittance-entryEmittance)/entryEmittance;
+            plot(results.in.charges.(pcName), deltaEmittance, '-o');
+            tit = ['\DeltaEmittance vs. ', pdName, ' and ',  pcName];
             title(tit);
             xlabel(pcName);
-            ylabel('Focused particles [%]');
-            ylim([0,110]);
+            ylabel('\DeltaEmittance [%]');
+            hold on
+           %Plots the focused particles. Needs to be restored when we get a
+           %closed formula for focused particles
+%             plot(results.in.charges.(pcName), results.out.(pdName).(pcName).focused, '-o');
+%             tit = ['Focused Particles vs. ', pdName, ' and ',  pcName];
+%             title(tit);
+%             xlabel(pcName);
+%             ylabel('Focused particles [%]');
+%             ylim([0,110]);
             legstr = string(results.in.device.(pdName));
             legstr = strcat(strjoin([pdName, " = "]), legstr); 
             legend(legstr);

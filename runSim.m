@@ -1,4 +1,4 @@
-function [focused_particles_percent, randomSeed] = runSim(params) %#ok<INUSD>
+function [focused_particles_percent, entryEmittance, exitEmittance, randomSeed] = runSim(params) %#ok<INUSD>
     %including all sub folders
     addpath(genpath(pwd));
     
@@ -96,7 +96,8 @@ function [focused_particles_percent, randomSeed] = runSim(params) %#ok<INUSD>
     end
 
     [ V, Z, X, Vz, Vx, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, ...
-        Mbleft, Mbright, NLeft, focused_particles, Q ] ...
+        Mbleft, Mbright, NLeft, focused_particles, entryEmittance, ...
+        exitEmittance, Q ] ...
         = FullEinzelSim(simPars); %#ok<ASGLU>
 
     %---------------------------%
