@@ -1,16 +1,18 @@
-function [ fig ] = plotEmittance( Z, X, Vz, Vx, zGrid)
+function [ fig ] = plotEmittance( Z, X, Vz, Vx, Vy, zGrid)
 
 rows = 1:size(X,1); 
 i =1;
 zAxis = 1:5:length(zGrid(1,:));
 emittance = zeros(size(zAxis));
+err = zeros(size(zAxis));
 for j=zAxis
     [~, cols]= min(abs(Z-zGrid(1,j)),[],2);
     idxs = sub2ind(size(X), rows, cols');
-    [BetaR, BetaZ, ~, Gamma ] = getBG( Vz, Vx, cols');
+    [BetaR, BetaZ, BetaY, ~, Gamma ] = getBG( Vz, Vx, Vy, cols');
     px = Gamma.*BetaR;
     pz = Gamma.*BetaZ;
-    [emittance(i), err(i)] = getEmittance( X(idxs), px, pz, Gamma);
+    py = Gamma.*BetaY;
+    [emittance(i), err(i)] = getEmittance( X(idxs), px, pz, py, Gamma);
     i=i+1;
 end
 
@@ -19,7 +21,7 @@ subplot(1,2,1)
 plot(zGrid(1,1:5:end)*1e6, emittance);
 title('Beams Emittance vs. Z Axis Position')
 xlabel ('Position in Lens[\mum]')
-ylabel ('Emittance[\mum x radians]')
+ylabel ('Emittance[m x rad]')
 subplot(1,2,2)
 plot(zGrid(1,1:5:end)*1e6, err);
 title('Beams Numeric Error')

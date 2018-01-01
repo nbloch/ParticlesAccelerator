@@ -12,8 +12,8 @@ Qvec = Q;
 %---------------------
 %Create Grid
 %---------------------
-leftLength = -lensPreOffset-(repetitions*distanceBetweenElectrodes)/2;
-rightLength = lensPostOffset+(repetitions*distanceBetweenElectrodes)/2;
+leftLength = -lensPreOffset+Zq(1,1);
+rightLength = lensPostOffset+Zq(end, end);
 
 r = linspace(0, deviceRadius, rPts);
 z = linspace (leftLength, rightLength, 2*zPts);

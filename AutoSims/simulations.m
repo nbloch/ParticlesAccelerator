@@ -74,18 +74,19 @@ iterParamsCharges.Ek                        = [10e3, 100e3];    %eV units
 iterParamsCharges.maxInitMoment             = [1e-3, 1e-2];
 
 
-%device parameters iteration variables definitions
+device parameters iteration variables definitions
 
 iterParamsDevice.globalVa = [10,15,30,50,100,300,500,750,1000,2000];
 %iterParamsDevice.repetitions = [1,2,3,5,7,9];
-iterParamsDevice.distanceBetweenElectrodes=[0.5,0.75,1,1.25,2]/1e6;
-iterParamsDevice.globalElectrodeRadius=[0.25,0.5,0.75,1,1.5,2]/1e6;
-iterParamsDevice.params.lensPreOffset = [1,1.5,2,2.5,3,4,5]/(1e6);
+% iterParamsDevice.distanceBetweenElectrodes=[0.5,0.75,1,1.25,2]/1e6;
+% iterParamsDevice.globalElectrodeRadius=[0.25,0.5,0.75,1,1.5,2]/1e6;
+% iterParamsDevice.lensPreOffset = [1,1.5,2,2.5,3,4,5]/(1e6);
 
 
-%DEBUG
+% % DEBUG
 % iterParamsCharges.Ek=[10e3, 100e3];
-% iterParamsDevice.globalVa = [15,100];
+% % iterParamsDevice.globalVa = [15,100];
+% iterParamsDevice.lensPreOffset = [1,1.5]/(1e6);
 % params.M                         = 100;
 % params.N                         = 25;
 % params.rPts                      = 200;

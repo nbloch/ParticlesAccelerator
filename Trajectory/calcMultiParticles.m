@@ -19,11 +19,11 @@ phaseSpaceFig = 0;
 emittanceVsZFig = 0;
 
 focused = 0;
-particlesFailed = 0;
+% particlesFailed = 0;
 
-endBetaR = zeros(1,numOfParticles);
+endBetaX = zeros(1,numOfParticles);
 endBetaZ = zeros(1,numOfParticles);
-endBeta  = zeros(1,numOfParticles);
+% endBeta  = zeros(1,numOfParticles);
 endGamma = zeros(1,numOfParticles);
 exitR    = zeros(1,numOfParticles);
 
@@ -32,6 +32,7 @@ trajMaxLen = 100000;
 Z =  zeros(numOfParticles,trajMaxLen);
 X =  zeros(numOfParticles,trajMaxLen);
 Vz = zeros(numOfParticles,trajMaxLen);
+Vy = zeros(numOfParticles,trajMaxLen);
 Vx = zeros(numOfParticles,trajMaxLen);
 trajectoryLen = zeros(1,numOfParticles);
 
@@ -40,30 +41,39 @@ focusedMask  = zeros(1,numOfParticles);
 notFocusedMask = zeros(1,numOfParticles);
 
 %--------Randomize Start Conditions---------%
-entryR = initialRadius .* rand(1, numOfParticles);
 %Vector of the angles in the XY plane (and not in relative to Z axis)
-phiVec = 2*pi*(rand(1, numOfParticles)-0.5);
-entryRvecSigned = entryR.*sign(sin(phiVec));
-prVec = maxInitMoment*rand(1,numOfParticles);
-prVec(prVec.*entryRvecSigned >0) = -prVec(prVec.*entryRvecSigned >0);
-gamma0 = 1 + Ek*abs(q)/(m*c0^2);
-rGamma = gamma0 *(0.999+rand(1,numOfParticles)/500);
-pzVec = sqrt(rGamma.^2 -1 -prVec.^2);
+rr = initialRadius*rand(1,numOfParticles);
+phiR = pi*(-1+2*rand(1,numOfParticles));
+Rx = rr.*cos(phiR);
+Ry = rr.*sin(phiR);
 
-startBetaR = prVec./rGamma;
-startBetaZ = pzVec./rGamma;
-startBeta  = sqrt(startBetaZ.^2+startBetaR.^2);
+pr = maxInitMoment*rand(1, numOfParticles);
+phiM = pi*(-1+2*rand(1, numOfParticles));
+rPx = pr.*cos(phiM);
+rPx(rPx.*Rx>0) = -rPx(rPx.*Rx>0);
+rPy = pr.*sin(phiM);
+rPy(rPy.*Ry>0) = -rPy(rPy.*Ry>0);
+
+gamma0 = 1 + ((Ek*abs(q))/(m*(c0^2)));
+rGamma = gamma0 *(0.999+0.002*rand(1,numOfParticles));
+
+rPz = sqrt((rGamma.^2)-1-(rPx.^2)-(rPy.^2));
+
+startBetaR = rPx./rGamma;
+startBetaY = rPy./rGamma;
+% startBetaZ = rPz./rGamma;
+% startBeta  = sqrt(startBetaZ.^2+startBetaR.^2+startBetaY.^2);
 startGamma = rGamma;
-
+Vyi = (rPy*c0)./rGamma;
 %------------------------------------%
 %--------Calculate Trajectory--------%
 %------------------------------------%
 parfor i = 1:numOfParticles
-    [ trajectoriesZ,trajectoriesX, velocityZ, velocityX, hitElectrode ] =  relativeParticleTrajectory(Voltage, zGrid, rGrid, q, m, pzVec(i)*c0/rGamma(i),...
-                                                 prVec(i)*c0/rGamma(i), entryRvecSigned(i), entryZ, proxTh,...
+    [ trajectoriesZ,trajectoriesX, velocityZ, velocityX, hitElectrode ] =  relativeParticleTrajectory(Voltage, zGrid, rGrid, q, m, rPz(i)*c0/rGamma(i),...
+                                                 rPx(i)*c0/rGamma(i), Rx(i), entryZ, proxTh,...
                                                  deviceRadius, leftElectrodeRadius, rightElectrodeRadius, electordesZ);
     if (hitElectrode)
-        particlesFailed = particlesFailed + 1;
+%         particlesFailed = particlesFailed + 1;
         hitMask(i) = 1;
     else
         if ((abs(trajectoriesX(end)) <= exitRthresh) && (trajectoriesZ(end) >= zGrid(1,end)))
@@ -72,10 +82,10 @@ parfor i = 1:numOfParticles
         elseif ((trajectoriesZ(end) >= zGrid(1,end)) && (abs(trajectoriesX(end)) > exitRthresh))
             notFocusedMask(i) = 1; %exited the lens but exceeded the focus threshold
         end
-        endBetaR(i) = velocityX(end)/c0;
+        endBetaX(i) = velocityX(end)/c0;
         endBetaZ(i) = velocityZ(end)/c0;
-        endBeta(i)  = sqrt(endBetaR(i)^2+endBetaZ(i)^2);
-        endGamma(i) = 1/sqrt(1-endBeta(i)^2);
+%         endBeta(i)  = sqrt(endBetaR(i)^2+endBetaZ(i)^2+startBetaY(i)^2);
+        endGamma(i) = 1/sqrt(1-(endBetaX(i)^2+endBetaZ(i)^2+startBetaY(i)^2));
         exitR(i) = trajectoriesX(end);
     end
     len = length(trajectoriesZ);
@@ -83,7 +93,7 @@ parfor i = 1:numOfParticles
     X (i,:) = [trajectoriesX,  NaN*ones(1,trajMaxLen-len)];
     Vz (i,:) = [velocityZ,  NaN*ones(1,trajMaxLen-len)];
     Vx (i,:) = [velocityX,  NaN*ones(1,trajMaxLen-len)];
-
+    Vy(i,:) = [Vyi(i)*ones(1,len), NaN*ones(1,trajMaxLen-len)]; 
     trajectoryLen (i) = length(trajectoriesZ); 
 %         fprintf('Done Calculating Trajectory %d\n', i)
 end
@@ -93,36 +103,36 @@ notFocusedMask = logical(notFocusedMask);
 passMask = logical(focusedMask+notFocusedMask);
 passRows = 1:size(Z,1);
 passExitIdxs= sub2ind(size(Z), passRows(passMask), trajectoryLen(passMask));
-exitPr = endBetaR(passMask).*endGamma(passMask);
+exitPr = endBetaX(passMask).*endGamma(passMask);
 exitPz = endBetaZ(passMask).*endGamma(passMask);
-[entryEmittance, erri] = getEmittance( entryRvecSigned(passMask), prVec(passMask), pzVec(passMask), rGamma(passMask) );
-[exitEmittance, errf] = getEmittance(X(passExitIdxs), exitPr, exitPz, endGamma(passMask)); 
+[entryEmittance, ~] = getEmittance( Rx(passMask), rPx(passMask), rPy(passMask), rPz(passMask), rGamma(passMask) );
+[exitEmittance, ~] = getEmittance(X(passExitIdxs), exitPr, rPy(passMask), exitPz, endGamma(passMask)); 
 
 %------------------------------------%
 %----------Figures and Video---------%
 %------------------------------------%
-trajStr = creatTrajParamsString(q, m, numOfParticles, hitMask, focused, exitR, proxTh, exitRthresh, Ek, max(prVec), max(exitPr), entryRvecSigned, ...
+trajStr = creatTrajParamsString(q, m, numOfParticles, hitMask, focused, exitR, proxTh, exitRthresh, Ek, max(rPx), max(exitPr), Rx, ...
                                 entryEmittance, exitEmittance);
 params = [deviceParams; trajStr];
 % --------Problematic Particle -------%
 if (min(min(Vz)) < 0 && plotProblematicParticles)    
-   displayProbParticle(Z, X, Vz, zGrid, rGrid, Ez, Er, leftElectrodeRadius, rightElectrodeRadius,q, deviceRadius, VaLeft, VaRight,...
-                                      m, multiParticle, trajectoryLen, axialEntryVel, radialEntryVel, entryRvecSigned, numOfParticles, Zq)
+    displayProbParticle(Z, X, Vz, zGrid, rGrid, Ez, Er, leftElectrodeRadius, rightElectrodeRadius,q, deviceRadius, VaLeft, VaRight,...
+                                      m, multiParticle, trajectoryLen, axialEntryVel, radialEntryVel, Rx, numOfParticles, Zq)
 end
 
 %---------Phase Space Figure---------%
 
 if(plotPhaseSpace)
-phaseSpaceFig = displayPhaseSpace( passMask, numOfParticles, exitR, entryRvecSigned, ...
-                                    startGamma, startBetaR, endGamma, endBetaR, notFocusedMask, true, params);
+    displayPhaseSpace( focusedMask, numOfParticles, exitR, Rx, startGamma, startBetaR, endGamma,...
+                       endBetaX, notFocusedMask, true, params);
 end
 
 if(plotEmittanceVsZ)
-    emittanceVsZFig = plotEmittance( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), zGrid);
+    emittanceVsZFig = plotEmittance( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), Vy(passRows,:), zGrid);
 end
 %---------Phase Space Video---------%
 if(recordPhaseSpace)                         
-   phaseSpaceVideo( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), entryRvecSigned(passRows),...
+    phaseSpaceVideo( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), Vy(passRows,:), Rx(passRows),...
                    zGrid, startBetaR(passRows), startGamma(passRows), params)
 end
 
