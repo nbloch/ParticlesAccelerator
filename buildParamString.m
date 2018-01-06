@@ -6,13 +6,22 @@ function pString = buildParamString(pNames,pSet, struct_field)
     if struct_field
         pSetString = strrep(string(pSet), "-", "_");
         pSetString = strrep(string(pSetString), ".", "_");
-        separator = 'X';
+        valSeparator = 'X';
+        paramSeparator = 'X';
     else
         pSetString = string(pSet);
-        separator = ' ';
+        valSeparator = ' = ';
+        paramSeparator = ', ';
     end
-    
-    pString = strjoin(string(pNames), separator) + separator...
-        + strjoin(pSetString, separator);
+    pString = "";
+    for i=1:numel(pSetString)
+        pString = pString + pNames{i} + valSeparator + pSetString(i);
+        % We don't add a separator at the end of the string
+        if i < numel(pSetString)
+            pString = pString + paramSeparator;
+        end
+    end
+%     pString = strjoin(string(pNames), separator) + separator...
+%         + strjoin(pSetString, separator);
 end
 

@@ -1,6 +1,7 @@
 function [pMat, pMatNames] = buildParamMat(iterParams, params, combination)
+    %pMat: Each of its columns is a vector of parameters for one simulation
     %pMatNames holds the name of the parameter we iterate on (only relevant
-    %for combination = true
+    %for combination = false)
 
     pNames = fieldnames(iterParams);
     pMatNames = [];
