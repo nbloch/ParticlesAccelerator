@@ -23,6 +23,8 @@ title('Beams Emittance vs. Z Axis Position')
 xlabel ('Position in Lens[\mum]')
 ylabel ('Emittance[m x rad]')
 subplot(1,2,2)
+%For logarithmic scale: change "plot" below to "semilogy" and remove the
+%multipliclation by 100 of Err in getEmittance
 plot(zGrid(1,1:5:end)*1e6, err);
 title('Beams Numeric Error')
 xlabel ('Position in Lens[\mum]')

@@ -101,10 +101,10 @@ iterParamsDevice = struct();
 
 
 % DEBUG
-iterParamsCharges.Ek=[10e3, 100e3];
+iterParamsCharges.Ek=[10e3]%, 100e3];
 % iterParamsCharges.maxInitMoment     = [1e-3, 1e-2];
-iterParamsDevice.globalVa = [15,100];
-iterParamsDevice.lensPreOffset = [1,1.5]/(1e6);
+iterParamsDevice.globalVa = [15]%,100];
+%iterParamsDevice.lensPreOffset = [1,1.5]/(1e6);
 params.M                         = 100;
 params.N                         = 25;
 params.rPts                      = 200;
