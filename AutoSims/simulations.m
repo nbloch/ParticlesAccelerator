@@ -1,3 +1,28 @@
+%"results" struct documentation:
+% 2 fields:
+% -in:
+%   3 fields:
+%   -globalDefaultParams: The default parameters of the simulation (not the
+%   iteration parameters)
+%   - device: device iteration parameters
+%   - charges: charges iteration parameters
+%   Both of the above fields contain the names of the parameters we iterate
+%   on along with their values (stored as vectors)
+% -out:
+%   N fields (N = num of different device parameters we simulate. e.g.
+%   param1 = [1 2], param2 = [5 6 7] --> N = 2). Each field is a device
+%   parameter name. In each of them:
+%       M fields (M = how many SETS of charge parameter are simulated. e.g.
+%       param1 = [1 2 3], param2 = [5 6 7], combinatory --> N = 9, not
+%       combinatory --> N = 6. Each fields name contains the whole set of
+%       charge params, separated with X and underscores (special characters
+%       are not allowed in field names...). 
+%       Example: 
+%       If we simulate param1= [1.5 2], param2 = [3e5], we'll have two
+%       fields whose names will be: param1X1_5Xparam2X3_5,
+%       param1X2Xparam2X3_5
+
+
 c0 = 3e8;
 e0 = -1.60217662e-19;
 eM = 9.10938356e-31;          
