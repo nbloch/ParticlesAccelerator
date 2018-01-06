@@ -73,6 +73,11 @@ params.pcCombinations=true;
 params.pdCombinations=false;
 
 
+
+if params.pdCombinations == true
+    error('Combinatorial device parameters not implemented yet');
+end
+
 paramsFields = fieldnames(params);
 
 iterParamsCharges = struct();
@@ -97,6 +102,7 @@ iterParamsDevice = struct();
 
 % DEBUG
 iterParamsCharges.Ek=[10e3, 100e3];
+% iterParamsCharges.maxInitMoment     = [1e-3, 1e-2];
 iterParamsDevice.globalVa = [15,100];
 iterParamsDevice.lensPreOffset = [1,1.5]/(1e6);
 params.M                         = 100;
@@ -200,63 +206,68 @@ for pdSetInd = 1 : size(pdMat, 2)
             runParams.(pcName) = pcSet(pcNameInd);
         end
 
-        pdString = buildParamString(pdNames, pdSet, false);
-        pcString = buildParamString(pcNames, pcSet, false);
+        pdTitle = buildParamString(pdNames, pdSet, false);
+        pcTitle = buildParamString(pcNames, pcSet, false);
     
-        runParams.simPdName = char(pdString);        
-        runParams.simPcName = char(pcString);   %Not in use for now
-        runParams.simName = char(pdString + " - " + pcString);
+        runParams.simPdName = char(pdTitle);        
+        runParams.simPcName = char(pcTitle);   %Not in use for now
+        runParams.simName = char(pdTitle + " - " + pcTitle);
         
         %Will define the field name in results
-        pdName = pdMatNames(pcSetInd);
+        pdName = pdMatNames(pdSetInd);
         pcString = buildParamString(pcNames, pcSet, true);
         
         
         [focused_particles_percent, entryEmittance, exitEmittance, ...
             randomSeed] = runSim(runParams);
-        results.out.(pdName).(pcString).focused = focused_particles_percent;
-        results.out.(pdName).(pcString).entryEmittance = entryEmittance;
-        results.out.(pdName).(pcString).exitEmittance = exitEmittance;
-        results.out.(pdName).(pcString).randomSeed = randomSeed;
+        results.out.(pdName).(pcString).focused(pdNameInd) = focused_particles_percent;
+        results.out.(pdName).(pcString).entryEmittance(pdNameInd) = entryEmittance;
+        results.out.(pdName).(pcString).exitEmittance(pdNameInd) = exitEmittance;
+        results.out.(pdName).(pcString).randomSeed(pdNameInd) = randomSeed;
+        results.out.(pdName).(pcString).pcTitle = pcTitle;
+        
         fprintf(log, "%s DONE, Time: %s \n",runParams.simName, datetime('now'));
     end
 end
 
-% %NEEDS TO UPDATE IT TO SUPPORT COMBINATORY PARAMETERS PLOT
-%     for pdNameInd = 1:numel(pdNames)
-%         pdName = pdNames{pdNameInd};
-%         for pcNameInd = 1:numel(pcNames)
-%             pcName = pcNames{pcNameInd};
-%             fig = figure;
-%             entryEmittance = results.out.(pdName).(pcName).entryEmittance;
-%             exitEmittance = results.out.(pdName).(pcName).exitEmittance;
-%             deltaEmittance = 100*(exitEmittance-entryEmittance)./entryEmittance;
-%             plot(results.in.device.(pdName), deltaEmittance, '-o');
-%             tit = ['\DeltaEmittance vs. ', pdName, ' and ',  pcName];
+    for pdNameInd = 1:numel(pdNames)
+        pdName = pdNames{pdNameInd};
+        pcStrings = fieldnames(results.out.(pdName));
+        
+        fig = figure;
+        tit = ['\DeltaEmittance vs. ', pdName];
+        title(tit);
+        xlabel(pdName);
+        ylabel('\DeltaEmittance [%]');
+        hold on
+        legstr = cell(1, numel(pcStrings));
+        
+        for pcNameInd = 1:numel(pcStrings)
+            pcString = pcStrings{pcNameInd};
+            entryEmittance = results.out.(pdName).(pcString).entryEmittance;
+            exitEmittance = results.out.(pdName).(pcString).exitEmittance;
+            deltaEmittance = 100*(exitEmittance-entryEmittance)./entryEmittance;
+            plot(results.in.device.(pdName), deltaEmittance, '-o');
+
+           %Plots the focused particles. Needs to be restored when we get a
+           %closed formula for focused particles
+           %TODO: plot it on two different graphs
+%             plot(results.in.charges.(pcName), results.out.(pdName).(pcName).focused, '-o');
+%             plot(results.in.device.(pdName), results.out.(pdName).(pcName).focused, '-o');
+%             tit = ['Focused Particles vs. ', pdName, ' and ',  pcName];
 %             title(tit);
 %             xlabel(pdName);
-%             ylabel('\DeltaEmittance [%]');
-%             hold on
-%             
-%            %Plots the focused particles. Needs to be restored when we get a
-%            %closed formula for focused particles
-%            %TODO: plot it on two different graphs
-% %             plot(results.in.charges.(pcName), results.out.(pdName).(pcName).focused, '-o');
-% %             plot(results.in.device.(pdName), results.out.(pdName).(pcName).focused, '-o');
-% %             tit = ['Focused Particles vs. ', pdName, ' and ',  pcName];
-% %             title(tit);
-% %             xlabel(pdName);
-% %             ylabel('Focused particles [%]');
-% %             ylim([0,100]);
-%             
-%             
-%             legstr = string(results.in.charges.(pcName));
-%             legstr = strcat(strjoin([pcName, " = "]), legstr); 
-%             legend(legstr);
-%             savefig(fig, ['./simulations/', params.simGlobalName,'/simulationsSummary/', tit, '.fig']);
-%             close(fig);
-%         end
-%     end
+%             ylabel('Focused particles [%]');
+%             ylim([0,100]);
+             
+            legstr{pcNameInd} = results.out.(pdName).(pcString).pcTitle;
+            
+        end
+        
+        legend(legstr);
+        savefig(fig, ['./simulations/', params.simGlobalName,'/simulationsSummary/', tit, '.fig']);
+        close(fig);
+    end
     
     
     save(['./simulations/', params.simGlobalName,'/simulationsSummary/results.mat'], 'results');
