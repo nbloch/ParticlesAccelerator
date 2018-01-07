@@ -24,7 +24,8 @@ function [pMat, pMatNames] = buildParamMat(iterParams, params, combination)
         pMat = zeros(numel(pList), totalParamValues);
         pMatNames = strings(1, totalParamValues);
         for pNameInd = 1:numel(pNames)
-            pName = string(pNames{pNameInd});
+%             pName = string(pNames{pNameInd});
+            pName = pNames{pNameInd};
             pVec = iterParams.(pName);
             % We first initialize the whole line whith the default param
             pMat(pNameInd, :) = params.(pName);

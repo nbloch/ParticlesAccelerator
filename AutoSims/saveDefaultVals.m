@@ -27,6 +27,9 @@ defaultVals.N                         = params.N;
 defaultVals.beamInitialRadius         = params.beamInitialRadius;
 defaultVals.maxInitMoment             = params.maxInitMoment;
 defaultVals.Ek                        = params.Ek; 
+defaultVals.pcNames                   = params.pcNames; 
+defaultVals.pdNames                   = params.pdNames; 
+
 
 
 save(sprintf('./simulations/%s/simDefaultVals.mat', params.simGlobalName), 'defaultVals')

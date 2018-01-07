@@ -1,6 +1,6 @@
 function [ CDFig, PPFig, PSFig, FSFig, focused ] = postProcessing( simVars, newFocuseRad, useNewRthresh, ...
                                                                    plotChargeDistribution, plotProbParticles, ... 
-                                                                   dispPhaseSpace, filmPhaseSpace, plotFullSim, plotNotFocused )
+                                                                   plotPhaseSpace, recordPhaseSpace, plotFullSim, plotNotFocused )
 %inputs:
 % simVars should contain:
 % 1. trajectory results: X,Y,U,W
@@ -40,42 +40,38 @@ end
 if ( useNewRthresh)
     exitRthresh = newFocuseRad/1e3;
 end
-
-[startBetaR,startBetaZ,startBeta, startGamma] = getBG(U, W, ones(1,numOfParticles));
+[startBetaX,startBetaZ,startBetaY, startBeta, startGamma] = getBG(Vz, Vx, Vy, ones(1,numOfParticles));
 lastZ = zGrid(1,end);
-[trajLen, hit, focused, hitMask, focusedMask, notFocusedMask ] = analyseTraj( X, Y, Zq, deviceRadius, leftElectrodeRadius,...
+
+[trajLen, hit, focused, hitMask, focusedMask, notFocusedMask ] = analyseTraj( Z, X, Zq, deviceRadius, leftElectrodeRadius,...
                                         rightElectrodeRadius, electrodeProximityThresh, exitRthresh, lastZ, numOfParticles);
-[endBetaR, endBetaZ, endBeta, endGamma] = getBG(U,W,trajLen);
+[endBetaX, endBetaZ, endBeta, endGamma] = getBG(Vz,Vx,trajLen);
  row = 1:size(Y,1); 
  idx = sub2ind(size(Y), row, trajLen);
  exitR = Y(idx);
  
- lowAxialVel   = min(U(:,1)); 
- highAxialVel  = max(U(:,1));
- lowRadialVel  = min(W(:,1));
- highRadialVel = max(W(:,1));
+ lowAxialVel   = min(Vz(:,1)); 
+ highAxialVel  = max(Vz(:,1));
+ lowRadialVel  = min(Vx(:,1));
+ highRadialVel = max(Vx(:,1));
  
- axialEntryVelVec  = U(:,1);
- radialEntryVelVec = W(:,1);
  entryRvec = Y(:,1);
  
  
 if(plotProbParticles)
-    PPFig = plotProbParticle(X, Y, U, zGrid, rGrid, Ez, Er, leftElectrodeRadius, rightElectrodeRadius,...
-                             q, deviceRadius, VaLeft, VaRight, m, true,...
-                             trajLen, axialEntryVelVec, radialEntryVelVec, entryRvec,...
-                             [], [], [], numOfParticles,Zq); 
+    displayProbParticle(Z, X, Vz, zGrid, rGrid, Ez, Er, leftElectrodeRadius, rightElectrodeRadius,q, deviceRadius, VaLeft, VaRight,...
+                                      m, multiParticle, trajectoryLen, axialEntryVel, radialEntryVel, Rr, numOfParticles, Zq);
                              %empty are variable for not phase space simulation
 end
 
-if(dispPhaseSpace)
-    PSFig = plotPhaseSpace( focusedMask, hitMask, numOfParticles, exitR, entryRvec, ...
-                            startGamma, startBetaR, endGamma, endBetaR, Y, notFocusedMask, plotNotFocused);
+if(plotPhaseSpace)
+    PSFig = displayPhaseSpace( focusedMask, numOfParticles, exitR, Rr, startGamma, startBetaX, endGamma,...
+                       endBetaX, notFocusedMask, true, params);
 end
 
-if(filmPhaseSpace)
-    phaseSpaceVideo( q, m, numOfParticles, focused, focusedMask, X, Y, U, W, lowAxialVel, highAxialVel,...
-                     lowRadialVel, highRadialVel, entryRvec, zGrid, startBetaR, startGamma)
+if(recordPhaseSpace)
+    phaseSpaceVideo( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), Vy(passRows,:), Rr(passRows),...
+                     zGrid, startBetaX(passRows), startGamma(passRows), params);
 end
 
 %-----------------------------%
@@ -84,7 +80,7 @@ end
 
 if(plotFullSim)
     trajParams = creatTrajParamsString(q, m, numOfParticles, hitMask, focused, endBetaZ,...
-                                    endBetaR, exitR, electrodeProximityThresh, exitRthresh, lowAxialVel,...
+                                    endBetaX, exitR, electrodeProximityThresh, exitRthresh, lowAxialVel,...
                                     highAxialVel, lowRadialVel,highRadialVel, entryRvec, false, 0); 
                                 
     fullParams = creatFullParamsString( electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...

@@ -39,6 +39,7 @@ else
 end
 
 %load the simulation device's results
+load(sprintf('%s/DeviceResults/%s = %d, %s = %d.mat',"./simulations/Simulations - Emittance Style6","globalVa", 15, "repetitions", 1));
 load(sprintf('%s/DeviceResults/%s-[%d].mat',params.simPath, pdName, pdVal));
 %load the trajectories results
 load(sprintf('%s/%s-[%d]-entryVel-[%d]/ParticleTrajectory.mat', params.simPath, pdName, pdVal, params.beta*c0));

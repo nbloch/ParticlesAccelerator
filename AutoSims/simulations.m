@@ -19,8 +19,8 @@
 %       are not allowed in field names...). 
 %       Example: 
 %       If we simulate param1= [1.5 2], param2 = [3e5], we'll have two
-%       fields whose names will be: param1X1_5Xparam2X3_5,
-%       param1X2Xparam2X3_5
+%       fields whose names will be: param1X1_5Xparam2X3e5,
+%       param1X2Xparam2X3e5
 %       Each of the above fields contains the results of each simulation
 
 
@@ -85,7 +85,7 @@ params.exitRthresh         = 0.25/1e6;
 params.simName       = 'lens';
 params.simGlobalName = 'Simulations - Emittance Style6';
 params.eraseOldSim   = true;
-params.genNewSeed    = true;
+params.genNewSeed    = false;
 params.savePlots     = true;
 %params.simPdName     = 'Repetitions';
 params.SingleSim     = false;
@@ -127,9 +127,10 @@ iterParamsDevice = struct();
 
 
 % DEBUG
-iterParamsCharges.Ek=[10e3]%, 100e3];
-% iterParamsCharges.maxInitMoment     = [1e-3, 1e-2];
-iterParamsDevice.globalVa = [15]%,100];
+iterParamsCharges.Ek=[10e3, 100e3];
+iterParamsCharges.maxInitMoment     = [1e-3, 1e-2];
+iterParamsDevice.globalVa = [15,100];
+iterParamsDevice.repetitions = [1,2];
 %iterParamsDevice.lensPreOffset = [1,1.5]/(1e6);
 params.M                         = 100;
 params.N                         = 25;
@@ -142,12 +143,13 @@ params.numOfParticles            = 10;
 % charges and device)
 pcNames = fieldnames(iterParamsCharges);
 pdNames = fieldnames(iterParamsDevice);
+params.pdNames = pdNames;
+params.pcNames = pcNames;
 
 %Contains the values for the iteration parameters. Each column correspond to a new
 %simulation, each row to a parameter name
 [pcMat, pcMatNames] = buildParamMat(iterParamsCharges, params, params.pcCombinations);
 [pdMat, pdMatNames] = buildParamMat(iterParamsDevice, params, params.pdCombinations);
-
 
 if isdir(['./simulations/',params.simGlobalName])
     rmdir(['./simulations/',params.simGlobalName],'s');
@@ -240,16 +242,34 @@ for pdSetInd = 1 : size(pdMat, 2)
         runParams.simName = char(pdTitle + " - " + pcTitle);
         
         %Will define the field name in results
-        pdName = pdMatNames(pdSetInd);
-        pcString = buildParamString(pcNames, pcSet, true);
+        pdName = char(pdMatNames(pdSetInd));
+        pcString = char(buildParamString(pcNames, pcSet, true));
         
         
         [focused_particles_percent, entryEmittance, exitEmittance, ...
             randomSeed] = runSim(runParams);
-        results.out.(pdName).(pcString).focused(pdNameInd) = focused_particles_percent;
-        results.out.(pdName).(pcString).entryEmittance(pdNameInd) = entryEmittance;
-        results.out.(pdName).(pcString).exitEmittance(pdNameInd) = exitEmittance;
-        results.out.(pdName).(pcString).randomSeed(pdNameInd) = randomSeed;
+        
+        %The condition is for 'focused' but can be generalized to the other
+        %parameters
+        if ~isfield(results, 'out') || ...
+                ~isfield(results.out, pdName) ||...
+                ~isfield(results.out.(pdName), pcString) || ...
+                ~isfield(results.out.(pdName).(pcString), 'focused')
+            
+            results.out.(pdName).(pcString).focused = [];
+            results.out.(pdName).(pcString).entryEmittance = [];
+            results.out.(pdName).(pcString).exitEmittance = [];
+            results.out.(pdName).(pcString).randomSeed = [];
+        end
+        
+        results.out.(pdName).(pcString).focused = ...
+            [results.out.(pdName).(pcString).focused, focused_particles_percent];
+        results.out.(pdName).(pcString).entryEmittance = ...
+            [results.out.(pdName).(pcString).entryEmittance, entryEmittance];
+        results.out.(pdName).(pcString).exitEmittance = ...
+            [results.out.(pdName).(pcString).exitEmittance, exitEmittance];
+        results.out.(pdName).(pcString).randomSeed = ...
+            [results.out.(pdName).(pcString).randomSeed, randomSeed];
         results.out.(pdName).(pcString).pcTitle = pcTitle;
         
         fprintf(log, "%s DONE, Time: %s \n",runParams.simName, datetime('now'));
@@ -286,7 +306,7 @@ end
 %             ylabel('Focused particles [%]');
 %             ylim([0,100]);
              
-            legstr{pcNameInd} = results.out.(pdName).(pcString).pcTitle;
+            legstr{pcNameInd} = char(results.out.(pdName).(pcString).pcTitle);
             
         end
         
