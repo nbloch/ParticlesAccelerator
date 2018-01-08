@@ -95,9 +95,9 @@ function [focused_particles_percent, entryEmittance, exitEmittance, randomSeed] 
         simPars.(varname)=eval(varname);
     end
 
-    [ V, Z, X, Vz, Vx, MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, ...
+    [ V, Z, X, Vz, Vx, Vy MSE, fig, zGrid, rGrid, Rq, Zq, Rb, Zb, Ez, Er, ...
         Mbleft, Mbright, NLeft, focused_particles, entryEmittance, ...
-        exitEmittance, Q ] ...
+        exitEmittance, Q, numericErr ] ...
         = FullEinzelSim(simPars); %#ok<ASGLU>
 
     %---------------------------%
@@ -137,7 +137,7 @@ function [focused_particles_percent, entryEmittance, exitEmittance, randomSeed] 
          end
      end 
      
-     save('ParticleTrajectory.mat', 'Z', 'X', 'Vz', 'Vx')
+     save('ParticleTrajectory.mat', 'Z', 'X', 'Vz', 'Vx', 'Vy', 'numericErr')
 
      if (savePlots)
          if(plotFullSim);                                savefig(fig.FullSim, 'FullSim.fig','compact');                  end

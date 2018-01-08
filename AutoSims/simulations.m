@@ -56,12 +56,12 @@ params.simulateSingleParticle  =  false;
 params.simulateMultiParticles  =  true;
 
 %Figures
-params.plotFullSim              = false;
-params.plotPhaseSpace           = false;
+params.plotFullSim              = true;
+params.plotPhaseSpace           = true;
 params.plotPhaseSpaceVideo      = false;
-params.plotChargeDistribution   = false;
-params.plotProblematicParticles = false;
-params.plotEmittanceVsZ         = false;
+params.plotChargeDistribution   = true;
+params.plotProblematicParticles = true;
+params.plotEmittanceVsZ         = true;
 
 %Particle Parameters
 params.electrodeProximityThresh  = 0.01/1e6;
@@ -83,7 +83,7 @@ params.exitRthresh         = 0.25/1e6;
 
 %Save Sim
 params.simName       = 'lens';
-params.simGlobalName = 'Simulations - Emittance Style6';
+params.simGlobalName = 'Simulations - 8-1-18';
 params.eraseOldSim   = true;
 params.genNewSeed    = false;
 params.savePlots     = true;
@@ -109,34 +109,35 @@ paramsFields = fieldnames(params);
 iterParamsCharges = struct();
 iterParamsDevice = struct();
 
-% %charge parameters iteration variables definitions (must be declared as ROW
-% %vectors)
-% 
-% iterParamsCharges.Ek                        = [10e3, 100e3];    %eV units
-% iterParamsCharges.maxInitMoment             = [1e-3, 1e-2];
-% 
-% 
-% %device parameters iteration variables definitions(must be declared as
-% %ROW vectors)
-% 
-% iterParamsDevice.globalVa = [10,15,30,50,100,300,500,750,1000,2000];
-% %iterParamsDevice.repetitions = [1,2,3,5,7,9];
-% % iterParamsDevice.distanceBetweenElectrodes=[0.5,0.75,1,1.25,2]/1e6;
-% % iterParamsDevice.globalElectrodeRadius=[0.25,0.5,0.75,1,1.5,2]/1e6;
-% % iterParamsDevice.lensPreOffset = [1,1.5,2,2.5,3,4,5]/(1e6);
+%charge parameters iteration variables definitions (must be declared as ROW
+%vectors)
+
+iterParamsCharges.Ek                        = [10e3, 100e3];    %eV units
+iterParamsCharges.maxInitMoment             = [1e-3, 1e-2];
+
+
+%device parameters iteration variables definitions(must be declared as
+%ROW vectors)
+
+iterParamsDevice.globalVa = [10,15,30,50,100,300,500,750,1000,2000];
+iterParamsDevice.repetitions = [1,2,3,5,7,9];
+% iterParamsDevice.distanceBetweenElectrodes=[0.5,0.75,1,1.25,2]/1e6;
+% iterParamsDevice.globalElectrodeRadius=[0.25,0.5,0.75,1,1.5,2]/1e6;
+% iterParamsDevice.lensPreOffset = [1,1.5,2,2.5,3,4,5]/(1e6);
 
 
 % DEBUG
-iterParamsCharges.Ek=[10e3, 100e3, 200e3];
-iterParamsCharges.maxInitMoment     = [1e-3, 1e-2];
-iterParamsDevice.globalVa = [15,100];
-iterParamsDevice.repetitions = [1,2];
-%iterParamsDevice.lensPreOffset = [1,1.5]/(1e6);
-params.M                         = 100;
-params.N                         = 25;
-params.rPts                      = 200;
-params.zPts                      = 200;
-params.numOfParticles            = 10;
+% iterParamsCharges.maxInitMoment = [1e-2, 1e-3];
+% iterParamsCharges.Ek            = [10e3, 100e3];
+% iterParamsDevice.globalVa       = [15, 100];
+% % iterParamsDevice.repetitions    = [1,2];
+% % iterParamsDevice.lensPreOffset  = [1,1.5]/(1e6);
+% % iterParamsDevice.distanceBetweenElectrodes = [0.5, 0.75, 1]/1e6;
+% params.M                         = 100;
+% params.N                         = 25;
+% params.rPts                      = 200;
+% params.zPts                      = 200;
+% params.numOfParticles            = 10;
 
 
 % Cell arrays that contain the names of the iteration parameters (both for
@@ -320,5 +321,5 @@ end
     
     fprintf(log, "Simulations FINISHED, Time: %s \n", datetime('now'));
     fclose(log);
-    
-    [ ~ ] = fullSimEmittancePlot(params.simGlobalName, pdNames, pcNames, pdMat, pcMat, iterParamsDevice, iterParamsCharges);
+    mkdir (['./simulations/',params.simGlobalName,'/EmittanceVsZ-Summary']);
+    fullSimEmittancePlot(params.simGlobalName, pdNames, pcNames, pdMat, pcMat, iterParamsDevice, iterParamsCharges);
