@@ -56,12 +56,12 @@ params.simulateSingleParticle  =  false;
 params.simulateMultiParticles  =  true;
 
 %Figures
-params.plotFullSim              = true;
-params.plotPhaseSpace           = true;
+params.plotFullSim              = false;
+params.plotPhaseSpace           = false;
 params.plotPhaseSpaceVideo      = false;
-params.plotChargeDistribution   = true;
-params.plotProblematicParticles = true;
-params.plotEmittanceVsZ         = true;
+params.plotChargeDistribution   = false;
+params.plotProblematicParticles = false;
+params.plotEmittanceVsZ         = false;
 
 %Particle Parameters
 params.electrodeProximityThresh  = 0.01/1e6;
@@ -127,7 +127,7 @@ iterParamsDevice = struct();
 
 
 % DEBUG
-iterParamsCharges.Ek=[10e3, 100e3];
+iterParamsCharges.Ek=[10e3, 100e3, 200e3];
 iterParamsCharges.maxInitMoment     = [1e-3, 1e-2];
 iterParamsDevice.globalVa = [15,100];
 iterParamsDevice.repetitions = [1,2];
@@ -320,3 +320,5 @@ end
     
     fprintf(log, "Simulations FINISHED, Time: %s \n", datetime('now'));
     fclose(log);
+    
+    [ ~ ] = fullSimEmittancePlot(params.simGlobalName, pdNames, pcNames, pdMat, pcMat, iterParamsDevice, iterParamsCharges);

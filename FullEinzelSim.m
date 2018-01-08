@@ -15,7 +15,7 @@ clear params;
 close all;
 if (~plotChargeDistribution && ~plotPhaseSpaceVideo && ~plotProblematicParticles && ...
     ~plotFullSim            && ~plotEmittanceVsZ    && ~plotPhaseSpace           && ~dimensionsOptimization)
-    fig = 0;
+    fig = [];
 end
 addpath(genpath(pwd));
 %--------------------------------
