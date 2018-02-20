@@ -122,8 +122,8 @@ if (min(min(Vz)) < 0 && plotProblematicParticles)
 end
 %---------Phase Space Figure---------%
 if(plotPhaseSpace)
-    phaseSpaceFig = displayPhaseSpace( focusedMask, numOfParticles, exitR, Rr, startGamma, startBetaR, endGamma,...
-                       endBetaX, notFocusedMask, true, params);
+    phaseSpaceFig = displayPhaseSpace( passMask, numOfParticles, exitR, Rr, startGamma, startBetaR, endGamma,...
+                       endBetaX, notFocusedMask, false, params);
 end
 %---------Emittance Figure---------%
 [ emittance, zPtsCalc, numericErr] = calcEmiitanceVsZ( Z(passRows, :), X(passRows,:), Vz(passRows,:), Vx(passRows,:), Vy(passRows,:), zGrid);

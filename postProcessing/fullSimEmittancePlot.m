@@ -14,8 +14,8 @@ for pd = 1:numel(pdNames)
         for i = 1:length(curPcVals)
             pcValsPath = [pcValsPath, pcNames{i}, ' = ',num2str(curPcVals(i)),', '];
         end
-        electrodesZ = NaN*ones(9,curPdNumOfVals);
-        electrodPosEmit = NaN*ones(9,curPdNumOfVals);
+        electrodesZ = NaN*ones(19,curPdNumOfVals);
+        electrodPosEmit = NaN*ones(19,curPdNumOfVals);
         emittance = NaN.*ones(emittanceLenFactor,curPdNumOfVals);
         zPtsCalc = NaN.*ones(emittanceLenFactor,curPdNumOfVals);
         legStr = [];
@@ -90,7 +90,7 @@ for pd = 1:numel(pdNames)
             otherPdVals = [otherPdVals, pdNames{i}, ' = ',num2str(curPdVals(i)),', '];
             end
         end
-        figName = [pdNames{pd},': ',otherPdVals, pcValsPath,'EmittanceVsZ.fig'];
+        figName = ['Tested Param- ', pdNames{pd},', Othe Parms Vals- ' ,otherPdVals, pcValsPath,'EmittanceVsZ.fig'];
         savefig(fig, figName,'compact');
         cd ../../..
         close(fig)
