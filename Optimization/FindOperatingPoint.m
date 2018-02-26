@@ -7,7 +7,7 @@ Nstep = 10;
 Mstep = 10;
 
 minNnum = 200;
-maxNnum = 1000;
+maxNnum = 400;
 
 maxMperN = 1000;
 N_vec = minNnum : Nstep : maxNnum;
@@ -25,8 +25,8 @@ for i=1:length(N_vec)
     for j = 1:maxMperN
         [~, ~, ~, ~, ~, tmp(j)] = getChargesRepetitive(VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
                                               deviceRadius, distanceBetweenElectrodes, N_vec(i), M, repetitions);                             
-
         M_vec(j) = M;
+        fprintf('Done calculating N = %d, M= %d.\n', N_vec(i), M_vec(j)) 
         M = M + Mstep;
         if ((j >= 2) && ( ((((tmp(j-1) - tmp(j))> 0) && (tmp(j-1) - tmp(j))< convergeTh)) || ((tmp(j) - tmp(j-1)) > growthTh))) 
             break
@@ -47,7 +47,7 @@ end
 save('MSEDATA.mat', 'MSE','M_mat', 'N_vec');
 fig = figure();
     for i = 1:length(N_vec)
-        plot(M_mat(i,:), MSE(i,:), '-o');
+        semilogy(M_mat(i,:), MSE(i,:), '-o');
         
         hold on;
     end
@@ -55,6 +55,7 @@ fig = figure();
     title(sprintf('Dimensions Optimization Algorithm For %d Unit Cells', repetitions));
     xlabel('M- Num of Boundaries Conditions');
     ylabel('MSE [%]');
+    
     hleg = legend(legstr,'Location', 'best');
     htitle = get(hleg, 'Title');
     set(htitle,'String', 'Number Of Charges Per Cell');

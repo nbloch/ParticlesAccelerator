@@ -41,9 +41,9 @@ numericErr = 0;
 %--------------------------------
 if(dimensionsOptimization)
     tic;
-    [ N, M, ~, fig.MSECalc ] = FindOperatingPoint(VaLeft, VaRight, electrodeWidth,leftElectrodeRadius,...
-                                         rightElectrodeRadius, deviceRadius, distanceBetweenElectrodes,...
-                                         use_bessel, repetitions, deviceLength,  convergeTh, growthTh );
+    [ N, M, MSE, fig ] = FindOperatingPoint(VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
+                                       deviceRadius, distanceBetweenElectrodes,repetitions, convergeTh, growthTh );
+                                     
     toc;
 end
 

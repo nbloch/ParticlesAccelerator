@@ -1,115 +1,124 @@
-VaLeft                      = -15e3;
-VaRight                     =  15e3;
-electrodeWidth              =  10e-6;
-leftElectrodeRadius         =  1e-3;
-rightElectrodeRadius        =  1e-3;     
-deviceRadius                =  5e-3;
-distanceBetweenElectrodes   =  1e-3;
-N                           =  250;
-M                           =  600;
-use_bessel                  =  0;
-rPts                        =  1000;
-zPts                        =  1000; 
-sideOffset                  =  2e-3; 
-repetitions  = 1;
+close all;
+clear all;
+clc;
 
 c0 = 3e8;
+e0 = -1.60217662e-19;
+eM = 9.10938356e-31;          
+
+%device Parameters
+deviceRadius              = 5e-3;
+lensPreOffset             = 2e-3;
+lensPostOffset            = 2e-3;
+distanceBetweenElectrodes = 1e-3;
+leftElectrodeRadius       = 1e-3;
+rightElectrodeRadius      = 1e-3;
+electrodeWidth            = 0.01e-6;
+repetitions               = 1;
+VaLeft                    = -15e3;
+VaRight                   = 15e3;
+globalVa                  = 15e3;
+
+%Resolution Parameters     
+M                         = 730;
+N                         = 290;     
+rPts                      = 1000;
+zPts                      = 1000;
 
 
-simulatePhaseSpace       = 0;
-useRelativeTrajectory    = 1;
-q                        = -1.60217662e-19;
-m                        = 9.10938356e-31;
-axialEntryVelocity       = 0.1  * c0;
-radialEntryVelocity      = 0.05 * c0;
+%Particle Parameters
+electrodeProximityThresh  = 0.01e-6;
+q                         = 1.60217662e-19;
+m                         = 9.10938356e-31;
+simulateElectron          = true;
 
-entryR                   = 0; 
-electrodeProximityThresh = 10e-6;
-exitRthresh              = 0.25*1e-3;
-lowAxialVel              = 0.1*c0;
-highAxialVel             = 0.1*c0;
-lowRadialVel             = (1e-6)*c0;
-highRadialVel            = (1e-6)*c0;
-numOfParticles           = 1;
+%Multi Particle
+numOfParticles    = 1000;
+beamInitialRadius = 0.5e-6;
+maxInitMoment     = 1e-3;
+Ek                = 10*1e3;
+
+%Single Particle - irrelevant for this sim
+axialEntryVel  = 0.2*c0;
+radialEntryVel = 0.05*c0;
+entryR         = -0.5e-3;
+exitRthresh    = 0.25e-6;
+
+deviceLength = repetitions*distanceBetweenElectrodes + lensPreOffset + lensPostOffset;
+
+% =========================
+% Build Lens & Potential calc
+% =========================
+[V, zGrid, rGrid, MSE, Rq, Zq, Rb, Zb, MLeft, MRight, NLeft, Qvec] = calcFullLensPotential( VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
+                                              deviceRadius, distanceBetweenElectrodes, N, M, repetitions, rPts, zPts, lensPreOffset, lensPostOffset);
 
 
+electordesZ = unique(Zq);
+entryZ   = zGrid(1,1);
 
-deviceLength = repetitions*distanceBetweenElectrodes + sideOffset; 
-
-[V, zGrid, rGrid, MSE, fig(2), Rq, Zq,  Rb, Zb ] = calcFullLensPotential( VaLeft, VaRight, electrodeWidth, leftElectrodeRadius, rightElectrodeRadius,...
-                                                    deviceRadius, distanceBetweenElectrodes, N, M, use_bessel, repetitions, deviceLength,...
-                                                    rPts, zPts);
-
-[ XLR, YLR] = calcTrajectory( simulatePhaseSpace,useRelativeTrajectory, V, zGrid, rGrid, q, m, axialEntryVelocity,...
-                                             radialEntryVelocity, entryR, Zq ,...
-                                             electrodeProximityThresh, exitRthresh,...
-                                             lowAxialVel, highAxialVel, lowRadialVel, highRadialVel, numOfParticles,...
-                                             deviceRadius, leftElectrodeRadius, rightElectrodeRadius);
+% =========================
+% Low Relativistic Particle
+% =========================
+[ Zl, Xl, Vzl, Vxl, ~] =  relativeParticleTrajectory(V, zGrid, rGrid, q, m, axialEntryVel,...
+                                 radialEntryVel, entryR, entryZ, electrodeProximityThresh,...
+                                 deviceRadius, leftElectrodeRadius, rightElectrodeRadius, electordesZ);
                                                 
+[ Zr, Xr, Vzr, Vxr, ~ ] = ParticleTrajectory(V, zGrid, rGrid, q, m, axialEntryVel,...
+                                 radialEntryVel, entryR, entryZ, electrodeProximityThresh,...
+                                 deviceRadius, leftElectrodeRadius, rightElectrodeRadius, electordesZ);
 
-useRelativeTrajectory    = 0;
-[ XR, YR] = calcTrajectory( simulatePhaseSpace,useRelativeTrajectory, V, zGrid, rGrid, q, m, axialEntryVelocity,...
-                                             radialEntryVelocity, entryR, Zq ,...
-                                             electrodeProximityThresh, exitRthresh,...
-                                             lowAxialVel, highAxialVel, lowRadialVel, highRadialVel, numOfParticles,...
-                                             deviceRadius, leftElectrodeRadius, rightElectrodeRadius);
-                                         
-axialEntryVelocity       = 0.9  * c0;
-radialEntryVelocity      = 0.1  * c0;                                         
-useRelativeTrajectory    = 1;                                         
-[ XL, YL] = calcTrajectory( simulatePhaseSpace,useRelativeTrajectory, V, zGrid, rGrid, q, m, axialEntryVelocity,...
-                                             radialEntryVelocity, entryR, Zq ,...
-                                             electrodeProximityThresh, exitRthresh,...
-                                             lowAxialVel, highAxialVel, lowRadialVel, highRadialVel, numOfParticles,...
-                                             deviceRadius, leftElectrodeRadius, rightElectrodeRadius);
-                                                
+% =========================
+% High Relativistic Particle
+% =========================
 
-useRelativeTrajectory    = 0;
-[ X, Y] = calcTrajectory( simulatePhaseSpace,useRelativeTrajectory, V, zGrid, rGrid, q, m, axialEntryVelocity,...
-                                             radialEntryVelocity, entryR, Zq ,...
-                                             electrodeProximityThresh, exitRthresh,...
-                                             lowAxialVel, highAxialVel, lowRadialVel, highRadialVel, numOfParticles,...
-                                             deviceRadius, leftElectrodeRadius, rightElectrodeRadius);                                         
+axialEntryVel       = 0.9  * c0;
+radialEntryVel      = 0.1  * c0;                                           
+[ Zlr, Xlr, Vzlr, Vxlr, ~] =  relativeParticleTrajectory(V, zGrid, rGrid, q, m, axialEntryVel,...
+                                 radialEntryVel, entryR, entryZ, electrodeProximityThresh,...
+                                 deviceRadius, leftElectrodeRadius, rightElectrodeRadius, electordesZ);
 
+[ Zrr, Xrr, Vzrr, Vxrr, ~ ] = ParticleTrajectory(V, zGrid, rGrid, q, m, axialEntryVel,...
+                                             radialEntryVel, entryR, entryZ, electrodeProximityThresh,...
+                                             deviceRadius, leftElectrodeRadius, rightElectrodeRadius, electordesZ);
 
 %TODO: add logic to calculate without the complete code
-
-
-figure()
-subplot (1,2,1)
-plot(X(1:10:end),Y(1:10:end),'-o',XL(1:10:end),YL(1:10:end),'-+')
-title('Levi eq vs. Reiser Eq - Not Relativistic Particle')
-xlabel('Z[mm]')
-ylabel('R[mm]')
-legend('Reiser', 'Levi')
-dist = zeros(1,length(X));
-for i=1:length(X)
-    [M, Ix] = min(abs(XL - X(i)));
-    dist(i) = sqrt( (X(i)-XL(Ix))^2 + (Y(i)-YL(Ix))^2);
-end
-subplot (1,2,2)
-plot(X, dist)
-title('Distance Between 2 Methods Trajectories');
-xlabel('Z [mm]')
-ylabel('Distance [m]')
+scale = 1e3;
 
 figure()
 subplot (1,2,1)
-plot(XR(1:10:end),YR(1:10:end),'-o',XLR(1:10:end),YLR(1:10:end),'-+')
-title('Levi eq vs. Reiser Eq - Relativistic Particle')
+plot(Zr(1:10:end)*scale,Xr(1:10:end)*scale,'-o',Zl(1:10:end)*scale,Xl(1:10:end)*scale,'-+')
+title('Energy Consercvation Approach (by Levi) vs. Force Analysis (by Reiser) - Not Relativistic Particle')
 xlabel('Z[mm]')
 ylabel('R[mm]')
-legend('Reiser', 'Levi')
-dist = zeros(1,length(X));
-for i=1:length(XR)
-    [M, Ix] = min(abs(XLR - XR(i)));
-    dist(i) = sqrt( (XR(i)-XLR(Ix))^2 + (YR(i)-YLR(Ix))^2);
+legend('Force(Reiser)', 'Energy(Levi)')
+dist = zeros(1,length(Xr));
+for i=1:length(Xr)
+    [M, Ix] = min(abs(Zl - Zr(i)));
+    dist(i) = sqrt( (Zl(Ix)-Zr(i))^2 + (Xl(Ix)-Xr(i))^2);
 end
 subplot (1,2,2)
-plot(XR, dist)
+plot(Zr*scale, dist*scale)
 title('Distance Between 2 Methods Trajectories');
 xlabel('Z [mm]')
-ylabel('Distance [m]')
+ylabel('Distance [mm]')
+
+figure()
+subplot (1,2,1)
+plot(Zrr(1:10:end)*scale,Xrr(1:10:end)*scale,'-o',Zlr(1:10:end)*scale,Xlr(1:10:end)*scale,'-+')
+title('Energy Conservation Approach (by Levi) vs. Force Analysis (by Reiser) - Relativistic Particle')
+xlabel('Z[mm]')
+ylabel('R[mm]')
+legend('Force(Reiser)', 'Energy(Levi)')
+dist = zeros(1,length(Zrr));
+for i = 1:length(Zrr)
+    [M, Ix] = min(abs(Zlr - Zrr(i)));
+    dist(i) = sqrt( (Zrr(i)-Zlr(Ix))^2 + (Xrr(i)-Xlr(Ix))^2);
+end
+subplot (1,2,2)
+plot(Zrr*scale, dist*scale)
+title('Distance Between 2 Methods Trajectories');
+xlabel('Z [mm]')
+ylabel('Distance [mm]')
 
 
 figure()
@@ -123,11 +132,11 @@ h = colorbar;
 h.Label.String = 'V_a [ KV ]';
 caxis([min(VaLeft, VaRight) max(VaLeft, VaRight)]/1e3);
 colormap(parula);
-plot(XR*1e3,YR*1e3,'r')
+plot(Zrr*1e3,Xrr*1e3,'r')
 
 figure()
 contourf(zGrid*1e3, rGrid*1e3, V/(1e3), 30);
-title('Particle Trajectory In Electrostatic Lens - Nor Relativistic');
+title('Particle Trajectory In Electrostatic Lens - Not Relativistic');
 xlabel('Z axis [mm]')
 ylabel('R axis [mm]')
 hold on
@@ -136,4 +145,4 @@ h = colorbar;
 h.Label.String = 'V_a [ KV ]';
 caxis([min(VaLeft, VaRight) max(VaLeft, VaRight)]/1e3);
 colormap(parula);
-plot(X*1e3,Y*1e3,'r')
+plot(Zr*1e3,Xr*1e3,'r')
