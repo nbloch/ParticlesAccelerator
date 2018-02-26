@@ -142,8 +142,9 @@ function [focused_particles_percent, entryEmittance, exitEmittance, randomSeed] 
      if (savePlots)
          if(plotFullSim);                                savefig(fig.FullSim, 'FullSim.fig','compact');                  end
          if(plotChargeDistribution);                     savefig(fig.ChargeDist, 'ChargeDistribution.fig','compact');    end
-         if(plotPhaseSpace   & (fig.PhaseSpace  ~= 0));   savefig(fig.PhaseSpace, 'PhaseSpace.fig','compact');            end
+         if(plotPhaseSpace   & (fig.PhaseSpace  ~= 0));  savefig(fig.PhaseSpace, 'PhaseSpace.fig','compact');            end
          if(plotEmittanceVsZ & (fig.EmittanceVsZ~=0));   savefig(fig.EmittanceVsZ, 'EmittanceVsZ.fig','compact');        end
+         if(plotEmittanceVsZ & (fig.numErrFig~=0));      savefig(fig.numErrFig, 'numericError.fig','compact');           end
          if(dimensionsOptimization);                     savefig(fig.MSECalc, 'MSECalc.fig','compact');                  end
          if(plotPhaseSpaceVideo & exist('../../../phaseSpace.avi','file'));        movefile('../../../phaseSpace.avi');        end
          if(plotProblematicParticles & isdir('../../../problematicParticles/'));   movefile('../../../problematicParticles/'); end 

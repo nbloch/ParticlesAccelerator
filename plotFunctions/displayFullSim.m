@@ -11,8 +11,9 @@ ax2 = axes('Position',[0.17 0.1 0.8 0.8],'Visible','off');
 axes(ax2)
 contourf(zGrid*dimFactor, rGrid*dimFactor, V, 30);
 title('Particle Trajectory In Electrostatic Lens');
+ax2.TitleFontSizeMultiplier = 2;
 xlabel('Z axis [\mum]')
-ylabel('R axis [\mum]')
+ylabel('X axis [\mum]')
 hold on
 shading interp
 h = colorbar;
@@ -56,7 +57,7 @@ if (repetitions > 2)
     axis equal
 end
 axes(ax1);
-text(.025,0.55, params_str);
+text(.025,0.55, params_str,'FontSize',11);
 axes(ax2)
 
 end

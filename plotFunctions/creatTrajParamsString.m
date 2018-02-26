@@ -10,18 +10,16 @@ scaleStr = '[\mum]';
 
 exitRRange        = max(abs(exitR(~hitMask)));
 entryRRange       = max(abs(entryR(~hitMask)));
-particleParams = {' ';
+particleParams = {
    '-------Particle Parameters-------';
   ['q: ', num2str(q/e0),'[e_0]'];
   ['M: ', num2str(m/eM),'[e_M]'];
-  ['Number of Particles: ', num2str(numOfParticles)];
-  ' ';};
+  ['Number of Particles: ', num2str(numOfParticles)];};
 entryParams ={'----Particle Entry Parameters----';
   ['R_i_n: [', num2str(0),', ',num2str(entryRRange*dimFactor),']',scaleStr];
-  ['Ek_i_n: ', num2str(Ek)/1e3,'[KeV]'];
+  ['Ek_i_n: ', num2str(Ek/1e3),'[KeV]'];
   ['P_r_,_i(max): ',num2str(entryPr)];
-  ['\epsilon_i: ', num2str(entryEmittance)];
-  ' ';};
+  ['\epsilon_i: ', num2str(entryEmittance)];};
 exitParams = {'----Particles Exit Parameters----';
   ['R_o_u_t: [', num2str(0),', ',num2str(exitRRange*dimFactor),']',scaleStr];
   ['P_r_,_f(max): ',num2str(exitPr)];

@@ -15,7 +15,7 @@ fig = figure();
     ax2 = axes('Position',[0.17 0.1 0.8 0.8],'Visible','off');
     axes(ax1);
     text(.025,0.55, params_str);
-    axes(ax2)
+    axes(ax2);
     
     legPlot(1) = plot(NaN,NaN,'r+');    hold on;
     legPlot(2) = plot(NaN,NaN,'b+');
@@ -65,8 +65,8 @@ fig = figure();
         xlim(1.1.*[-xl xl]);
         ylim(1.1.*[-yl yl]);   
     end 
-    xlabel('Entry/Exit R')
-    ylabel('\gamma\beta_r')
+    xlabel('Entry/Exit X')
+    ylabel('\gamma\beta_x')
     title('Particle Phase Space')
 
     
